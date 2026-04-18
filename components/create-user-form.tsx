@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
-import { useRouter } from "nextjs-toploader/app";
+import { revalidateUsersAction } from "@/lib/server-actions";
 
 export default function CreateUserForm() {
   const [showPass, setShowPass] = useState(false);
@@ -35,7 +35,6 @@ export default function CreateUserForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [commission, setCommission] = useState(0);
-  const router = useRouter();
 
   const handleSubmit = async () => {
     if (password !== confirmPassword) {
@@ -60,6 +59,7 @@ export default function CreateUserForm() {
       );
       return;
     }
+
     await authClient.admin.createUser(
       {
         name: fullname
@@ -77,11 +77,11 @@ export default function CreateUserForm() {
         },
       },
       {
-        onRequest: (ctx) => {
+        onRequest: () => {
           setSubmitting(true);
         },
-        onSuccess: (ctx) => {
-          router.refresh();
+        onSuccess: async () => {
+          await revalidateUsersAction();
           toast.success(
             "Account created successfully! Please check your email to verify your account.",
           );

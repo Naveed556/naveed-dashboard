@@ -6,11 +6,8 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import CreateUserForm from "@/components/create-user-form";
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export default async function UserTable() {
-  await delay(5000);
-  const { users, total } = await auth.api.listUsers({
+  const { users } = await auth.api.listUsers({
     query: {
       limit: 100,
       offset: 0,
@@ -21,6 +18,7 @@ export default async function UserTable() {
     },
     headers: await headers(),
   });
+
   return (
     <DataTable
       columns={columns as ColumnDef<UserWithRole>[]}

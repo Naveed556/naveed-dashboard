@@ -1,14 +1,33 @@
-import { headers } from "next/headers";
-import { auth } from "./auth";
+"use server";
 
-const { users, total } = await auth.api.listUsers({
-    query: {
-      limit: 100,
-      offset: 0,
-      sortBy: "createdAt",
-      filterField: "role",
-      filterValue: "user",
-      filterOperator: "eq",
-    },
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
+
+export async function banUserAction(userId: string) {
+  await auth.api.banUser({
+    body: { userId },
     headers: await headers(),
   });
+  revalidatePath("/admin/user-management");
+}
+
+export async function unbanUserAction(userId: string) {
+  await auth.api.unbanUser({
+    body: { userId },
+    headers: await headers(),
+  });
+  revalidatePath("/admin/user-management");
+}
+
+export async function deleteUserAction(userId: string) {
+  await auth.api.removeUser({
+    body: { userId },
+    headers: await headers(),
+  });
+  revalidatePath("/admin/user-management");
+}
+
+export async function revalidateUsersAction() {
+  revalidatePath("/admin/user-management");
+}

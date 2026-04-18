@@ -26,7 +26,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { UserWithRole } from "better-auth/plugins";
 import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
+import { banUserAction, unbanUserAction, deleteUserAction } from "@/lib/server-actions";
 
 interface User extends UserWithRole {
   commission: number;
@@ -34,66 +34,39 @@ interface User extends UserWithRole {
 }
 
 const BanUser = async (user: User) => {
-  await authClient.admin.banUser(
-    {
-      userId: user.id,
-    },
-    {
-      onRequest: () => {
-        toast.loading(`Banning user ${user.name}...`);
-      },
-      onSuccess: () => {
-        toast.dismiss();
-        toast.success(`User ${user.name} banned successfully!`);
-      },
-      onError: (ctx) => {
-        toast.dismiss();
-        toast.error(`Error while banning user: ${ctx.error.message}`);
-      },
-    },
-  );
+  const toastId = toast.loading(`Banning user ${user.name}...`);
+  try {
+    await banUserAction(user.id);
+    toast.dismiss(toastId);
+    toast.success(`User ${user.name} banned successfully!`);
+  } catch (err) {
+    toast.dismiss(toastId);
+    toast.error(`Error while banning user: ${err instanceof Error ? err.message : "Unknown error"}`);
+  }
 };
 
 const UnbanUser = async (user: User) => {
-  await authClient.admin.unbanUser(
-    {
-      userId: user.id,
-    },
-    {
-      onRequest: () => {
-        toast.loading(`Unbanning user ${user.name}...`);
-      },
-      onSuccess: () => {
-        toast.dismiss();
-        toast.success(`User ${user.name} unbanned successfully!`);
-      },
-      onError: (ctx) => {
-        toast.dismiss();
-        toast.error(`Error while unbanning user: ${ctx.error.message}`);
-      },
-    },
-  );
+  const toastId = toast.loading(`Unbanning user ${user.name}...`);
+  try {
+    await unbanUserAction(user.id);
+    toast.dismiss(toastId);
+    toast.success(`User ${user.name} unbanned successfully!`);
+  } catch (err) {
+    toast.dismiss(toastId);
+    toast.error(`Error while unbanning user: ${err instanceof Error ? err.message : "Unknown error"}`);
+  }
 };
 
 const DeleteUser = async (user: User) => {
-  await authClient.admin.removeUser(
-    {
-      userId: user.id,
-    },
-    {
-      onRequest: () => {
-        toast.loading(`Deleting user ${user.name}...`);
-      },
-      onSuccess: () => {
-        toast.dismiss();
-        toast.success(`User ${user.name} deleted successfully!`);
-      },
-      onError: (ctx) => {
-        toast.dismiss();
-        toast.error(`Error while deleting user: ${ctx.error.message}`);
-      },
-    },
-  );
+  const toastId = toast.loading(`Deleting user ${user.name}...`);
+  try {
+    await deleteUserAction(user.id);
+    toast.dismiss(toastId);
+    toast.success(`User ${user.name} deleted successfully!`);
+  } catch (err) {
+    toast.dismiss(toastId);
+    toast.error(`Error while deleting user: ${err instanceof Error ? err.message : "Unknown error"}`);
+  }
 };
 
 export const columns: ColumnDef<User>[] = [
