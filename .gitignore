@@ -17,6 +17,11 @@
 /.next/
 /out/
 
+# development
+/.cursor/
+/.vscode/
+/.qodo/
+
 # production
 /build
 
