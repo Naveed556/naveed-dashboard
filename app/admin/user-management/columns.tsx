@@ -8,7 +8,6 @@ import {
   Ban,
   Trash2,
   BadgeCheckIcon,
-  CircleDotIcon,
   ArrowUpDown,
   SquareUserIcon,
 } from "lucide-react";
@@ -26,7 +25,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { UserWithRole } from "better-auth/plugins";
 import { toast } from "sonner";
-import { banUserAction, unbanUserAction, deleteUserAction } from "@/lib/server-actions";
+import {
+  banUserAction,
+  unbanUserAction,
+  deleteUserAction,
+} from "@/lib/server-actions";
 
 interface User extends UserWithRole {
   commission: number;
@@ -41,7 +44,9 @@ const BanUser = async (user: User) => {
     toast.success(`User ${user.name} banned successfully!`);
   } catch (err) {
     toast.dismiss(toastId);
-    toast.error(`Error while banning user: ${err instanceof Error ? err.message : "Unknown error"}`);
+    toast.error(
+      `Error while banning user: ${err instanceof Error ? err.message : "Unknown error"}`,
+    );
   }
 };
 
@@ -53,7 +58,9 @@ const UnbanUser = async (user: User) => {
     toast.success(`User ${user.name} unbanned successfully!`);
   } catch (err) {
     toast.dismiss(toastId);
-    toast.error(`Error while unbanning user: ${err instanceof Error ? err.message : "Unknown error"}`);
+    toast.error(
+      `Error while unbanning user: ${err instanceof Error ? err.message : "Unknown error"}`,
+    );
   }
 };
 
@@ -65,7 +72,9 @@ const DeleteUser = async (user: User) => {
     toast.success(`User ${user.name} deleted successfully!`);
   } catch (err) {
     toast.dismiss(toastId);
-    toast.error(`Error while deleting user: ${err instanceof Error ? err.message : "Unknown error"}`);
+    toast.error(
+      `Error while deleting user: ${err instanceof Error ? err.message : "Unknown error"}`,
+    );
   }
 };
 
@@ -152,9 +161,13 @@ export const columns: ColumnDef<User>[] = [
       const user = row.original;
       return (
         <Badge variant={user.banned ? "destructive" : "secondary"}>
-          <CircleDotIcon
-            className={user.banned ? "text-destructive" : "text-primary"}
-          />
+          <div
+            className={`rounded-full h-3 w-3 border flex items-center justify-center ${user.banned ? "border-destructive" : "border-green-600"}`}
+          >
+            <div
+              className={`rounded-full h-1.5 w-1.5 ${user.banned ? "bg-destructive" : "bg-green-600"}`}
+            />
+          </div>
           {user.banned ? "Banned" : "Active"}
         </Badge>
       );

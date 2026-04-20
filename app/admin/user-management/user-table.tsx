@@ -23,7 +23,8 @@ export default async function UserTable() {
     <DataTable
       columns={columns as ColumnDef<UserWithRole>[]}
       data={users}
-      action={<CreateUserForm />}
+      actionButton={<CreateUserForm />}
+      filterValue="username"
     />
   );
 }

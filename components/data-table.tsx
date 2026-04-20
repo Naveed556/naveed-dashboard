@@ -36,13 +36,15 @@ import { Settings2Icon } from "lucide-react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  action?: React.JSX.Element;
+  actionButton?: React.JSX.Element;
+  filterValue?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  action,
+  actionButton,
+  filterValue,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -70,15 +72,15 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       {/* Toolbar */}
-      <div className="flex items-center justify-between p-4 lg:p-6">
-        <Input
-          placeholder="Filter username..."
-          value={(table.getColumn("username")?.getFilterValue() as string) ?? ""}
+      <div className="flex items-center justify-between p-2">
+        {filterValue && <Input
+          placeholder={`Filter ${filterValue}...`}
+          value={(table.getColumn(filterValue)?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("username")?.setFilterValue(event.target.value)
+            table.getColumn(filterValue)?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
-        />
+        />}
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -107,7 +109,7 @@ export function DataTable<TData, TValue>({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          {action}
+          {actionButton}
         </div>
       </div>
       {/* Table */}

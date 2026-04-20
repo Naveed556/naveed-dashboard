@@ -45,6 +45,8 @@ import {
 import { CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { Payments, paymentsColumns } from "./payments-columns";
+import { DataTable } from "@/components/data-table";
 
 interface User {
   id: string;
@@ -55,14 +57,6 @@ interface User {
   commission: number;
   createdAt: Date;
   avatar?: string;
-}
-
-interface Payment {
-  id: string;
-  amount: number;
-  status: "paid" | "pending";
-  date: Date;
-  description: string;
 }
 
 interface Earning {
@@ -78,7 +72,7 @@ export default function UserStats({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const [user, setUser] = useState<User | null>(null);
-  const [payments, setPayments] = useState<Payment[]>([]);
+  const [payments, setPayments] = useState<Payments[]>([]);
   const [earnings, setEarnings] = useState<Earning[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<User>>({});
@@ -112,34 +106,26 @@ export default function UserStats({
       setEditForm(mockUser);
 
       // Mock payments data
-      const mockPayments: Payment[] = [
+      const mockPayments: Payments[] = [
         {
-          id: "1",
           amount: 100,
-          status: "paid",
-          date: new Date("2024-04-10"),
-          description: "Premium subscription",
+          status: "Paid",
+          month: "January 2026",
         },
         {
-          id: "2",
           amount: 50,
-          status: "pending",
-          date: new Date("2024-04-15"),
-          description: "Service fee",
+          status: "Pending",
+          month: "February 2026",
         },
         {
-          id: "3",
           amount: 75,
-          status: "paid",
-          date: new Date("2024-04-08"),
-          description: "Consultation",
+          status: "Paid",
+          month: "March 2026",
         },
         {
-          id: "4",
           amount: 200,
-          status: "paid",
-          date: new Date("2024-04-05"),
-          description: "Project payment",
+          status: "Paid",
+          month: "April 2026",
         },
       ];
       setPayments(mockPayments);
@@ -184,8 +170,8 @@ export default function UserStats({
     (sum, earning) => sum + earning.amount,
     0,
   );
-  const paidPayments = payments.filter((p) => p.status === "paid");
-  const pendingPayments = payments.filter((p) => p.status === "pending");
+  const paidPayments = payments.filter((p) => p.status === "Paid");
+  const pendingPayments = payments.filter((p) => p.status === "Pending");
 
   if (!user) {
     return <div>Loading...</div>;
@@ -340,7 +326,7 @@ export default function UserStats({
               </p>
             </div>
           </div>
-          <Table>
+          {/* <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Description</TableHead>
@@ -367,7 +353,8 @@ export default function UserStats({
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+          </Table> */}
+          <DataTable columns={paymentsColumns} data={payments} />
         </CardContent>
       </Card>
 
