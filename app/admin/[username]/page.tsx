@@ -12,14 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -36,17 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarDays } from "lucide-react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Payments, paymentsColumns } from "./payments-columns";
-import { DataTable } from "@/components/data-table";
+import { PaymentManagement } from "./payment-management";
 
 interface User {
   id: string;
@@ -59,11 +42,6 @@ interface User {
   avatar?: string;
 }
 
-interface Earning {
-  date: string;
-  amount: number;
-}
-
 export default function UserStats({
   params,
   searchParams,
@@ -72,12 +50,8 @@ export default function UserStats({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const [user, setUser] = useState<User | null>(null);
-  const [payments, setPayments] = useState<Payments[]>([]);
-  const [earnings, setEarnings] = useState<Earning[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<Partial<User>>({});
-  const [dateFrom, setDateFrom] = useState<Date>();
-  const [dateTo, setDateTo] = useState<Date>();
   const [username, setUsername] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
 
@@ -87,11 +61,11 @@ export default function UserStats({
       const searchParamsData = await searchParams;
 
       setUsername(paramsData.username);
-      setUserId((searchParamsData.id as string) || "");
+      setUserId((searchParamsData.id as string) || "user1");
 
       // Mock user data - in real app, fetch from API
       const mockUser: User = {
-        id: (searchParamsData.id as string) || "1",
+        id: (searchParamsData.id as string) || "user1",
         username: paramsData.username,
         email: `${paramsData.username}@example.com`,
         name:
@@ -104,50 +78,6 @@ export default function UserStats({
       };
       setUser(mockUser);
       setEditForm(mockUser);
-
-      // Mock payments data
-      const mockPayments: Payments[] = [
-        {
-          amount: 100,
-          status: "Paid",
-          month: "January 2026",
-        },
-        {
-          amount: 50,
-          status: "Pending",
-          month: "February 2026",
-        },
-        {
-          amount: 75,
-          status: "Paid",
-          month: "March 2026",
-        },
-        {
-          amount: 200,
-          status: "Paid",
-          month: "April 2026",
-        },
-      ];
-      setPayments(mockPayments);
-
-      // Mock earnings data for last 30 days
-      const mockEarnings: Earning[] = [];
-      const today = new Date();
-      for (let i = 29; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        mockEarnings.push({
-          date: format(date, "yyyy-MM-dd"),
-          amount: Math.floor(Math.random() * 500) + 50,
-        });
-      }
-      setEarnings(mockEarnings);
-
-      // Set default date range to last 30 days
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      setDateFrom(thirtyDaysAgo);
-      setDateTo(today);
     };
 
     fetchData();
@@ -159,19 +89,6 @@ export default function UserStats({
       setIsEditing(false);
     }
   };
-
-  const filteredEarnings = earnings.filter((earning) => {
-    if (!dateFrom || !dateTo) return true;
-    const earningDate = new Date(earning.date);
-    return earningDate >= dateFrom && earningDate <= dateTo;
-  });
-
-  const totalEarnings = filteredEarnings.reduce(
-    (sum, earning) => sum + earning.amount,
-    0,
-  );
-  const paidPayments = payments.filter((p) => p.status === "Paid");
-  const pendingPayments = payments.filter((p) => p.status === "Pending");
 
   if (!user) {
     return <div>Loading...</div>;
@@ -299,157 +216,8 @@ export default function UserStats({
         </CardContent>
       </Card>
 
-      {/* Payments Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment Information</CardTitle>
-          <CardDescription>Track paid and pending payments</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="text-center p-4 border rounded-lg">
-              <h4 className="text-lg font-semibold text-green-600">
-                Paid Payments
-              </h4>
-              <p className="text-2xl font-bold">{paidPayments.length}</p>
-              <p className="text-sm text-muted-foreground">
-                Total: ${paidPayments.reduce((sum, p) => sum + p.amount, 0)}
-              </p>
-            </div>
-            <div className="text-center p-4 border rounded-lg">
-              <h4 className="text-lg font-semibold text-yellow-600">
-                Pending Payments
-              </h4>
-              <p className="text-2xl font-bold">{pendingPayments.length}</p>
-              <p className="text-sm text-muted-foreground">
-                Total: ${pendingPayments.reduce((sum, p) => sum + p.amount, 0)}
-              </p>
-            </div>
-          </div>
-          {/* <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Description</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {payments.map((payment) => (
-                <TableRow key={payment.id}>
-                  <TableCell>{payment.description}</TableCell>
-                  <TableCell>${payment.amount}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        payment.status === "paid" ? "default" : "secondary"
-                      }
-                    >
-                      {payment.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{format(payment.date, "PPP")}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table> */}
-          <DataTable columns={paymentsColumns} data={payments} />
-        </CardContent>
-      </Card>
-
-      {/* Earnings Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>User Earnings</CardTitle>
-          <CardDescription>
-            View earnings over time with customizable date range
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4 mb-4">
-            <div className="grid gap-2">
-              <Label htmlFor="date-from">From Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-60 justify-start text-left font-normal",
-                      !dateFrom && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarDays className="mr-2 h-4 w-4" />
-                    {dateFrom ? format(dateFrom, "PPP") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateFrom}
-                    onSelect={setDateFrom}
-                    autoFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="date-to">To Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-60 justify-start text-left font-normal",
-                      !dateTo && "text-muted-foreground",
-                    )}
-                  >
-                    <CalendarDays className="mr-2 h-4 w-4" />
-                    {dateTo ? format(dateTo, "PPP") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dateTo}
-                    onSelect={setDateTo}
-                    autoFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="flex items-end">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const thirtyDaysAgo = new Date();
-                  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                  setDateFrom(thirtyDaysAgo);
-                  setDateTo(new Date());
-                }}
-              >
-                Last 30 Days
-              </Button>
-            </div>
-          </div>
-          <div className="text-center mb-4">
-            <h4 className="text-lg font-semibold">Total Earnings</h4>
-            <p className="text-3xl font-bold text-green-600">
-              ${totalEarnings}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              From {dateFrom ? format(dateFrom, "PPP") : "N/A"} to{" "}
-              {dateTo ? format(dateTo, "PPP") : "N/A"}
-            </p>
-          </div>
-          <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-            <p className="text-muted-foreground">Earnings Chart Placeholder</p>
-            <p className="text-xs mt-2">
-              Chart component would be implemented here
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Payment Management Component */}
+      <PaymentManagement userId={userId} username={username} />
     </div>
   );
 }

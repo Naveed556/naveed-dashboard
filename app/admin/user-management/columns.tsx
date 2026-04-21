@@ -140,7 +140,7 @@ export const columns: ColumnDef<User>[] = [
             {user.email}
           </a>
           {user.emailVerified && (
-            <BadgeCheckIcon className="size-4 text-primary" />
+            <BadgeCheckIcon className="size-4 text-green-600" />
           )}
         </div>
       );

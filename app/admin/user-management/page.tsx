@@ -1,13 +1,26 @@
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserTable from "./user-table";
+import { WebsiteSelector } from "@/components/website-selector";
 
-export default function UserManagement() {
+interface UserManagementProps {
+  searchParams: Promise<{ website?: string }>;
+}
+
+export default async function UserManagement({
+  searchParams,
+}: UserManagementProps) {
+  const params = await searchParams;
+  const website = params.website || "";
+
   return (
     <div className="container mx-auto p-5">
       <h1 className="text-2xl font-bold">User Management</h1>
+      <div className="my-6">
+        <WebsiteSelector />
+      </div>
       <Suspense fallback={<UserTableSkeleton />}>
-        <UserTable />
+        <UserTable website={website} />
       </Suspense>
     </div>
   );
@@ -47,7 +60,7 @@ function UserRowSkeleton() {
     </tr>
   );
 }
- 
+
 function UserTableSkeleton() {
   return (
     <div className="w-full rounded-lg overflow-hidden">
@@ -59,7 +72,7 @@ function UserTableSkeleton() {
           <Skeleton className="h-8 w-8 md:w-28" />
         </div>
       </div>
- 
+
       {/* Table */}
       <table className="w-full rounded-md border">
         {/* Header */}
@@ -86,7 +99,7 @@ function UserTableSkeleton() {
             <th className="py-3 px-4" />
           </tr>
         </thead>
- 
+
         {/* Rows */}
         <tbody>
           {Array.from({ length: 10 }).map((_, i) => (

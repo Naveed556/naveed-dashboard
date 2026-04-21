@@ -26,6 +26,11 @@ export const auth = betterAuth({
         defaultValue: 0,
         required: true,
       },
+      accessibleSites: {
+        type: "string[]",
+        defaultValue: [],
+        required: true,
+      },
     },
   },
   database: mongodbAdapter(

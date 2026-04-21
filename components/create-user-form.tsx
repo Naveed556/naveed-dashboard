@@ -1,10 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { EyeIcon, EyeOffIcon, Loader2Icon, PlusIcon } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Loader2Icon, PlusIcon, Check, ChevronsUpDown } from "lucide-react";
 import {
   Field,
   FieldDescription,
@@ -21,84 +20,86 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Label } from "./ui/label";
-import { revalidateUsersAction } from "@/lib/server-actions";
+import { createUserAction, getSitesAction } from "@/lib/server-actions";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Sites } from "@/lib/types";
 
 export default function CreateUserForm() {
   const [showPass, setShowPass] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [fullname, setFullname] = useState("");
   const [gender, setGender] = useState("male");
+  const [selectedSites, setSelectedSites] = useState<string[]>([]);
+  const [sites, setSites] = useState<Sites[]>([]);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [commission, setCommission] = useState(0);
 
-  const handleSubmit = async () => {
-    if (password !== confirmPassword) {
-      toast.error(
-        "Passwords do not match. Please make sure both password fields are the same.",
-      );
-      return;
-    }
+  useEffect(() => {
+    const getAllSites = async () => {
+      const fetchedSites = await getSitesAction();
+      console.log(fetchedSites);
+      setSites(fetchedSites);
+    };
+    getAllSites();
+  }, []);
 
-    const { data: usernameResponse, error: usernameError } =
-      await authClient.isUsernameAvailable({
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSubmitting(true);
+    const toastId = toast.loading("Creating user...");
+    try {
+      await createUserAction(
+        fullname,
+        gender,
         username,
-      });
-    if (!usernameResponse?.available) {
-      toast.error(
-        "Username already exists. Please choose a different username.",
-      );
-      return;
-    } else if (usernameError) {
-      toast.error(
-        `Error while checking username availability: ${usernameError}`,
-      );
-      return;
-    }
-
-    await authClient.admin.createUser(
-      {
-        name: fullname
-          .split(" ")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" "),
         email,
         password,
-        role: "user",
-        data: {
-          username: username.toLowerCase(),
-          gender,
-          image: `${gender === "male" ? "/male_profile.png" : "/female_profile.png"}`,
-          commission,
-        },
-      },
-      {
-        onRequest: () => {
-          setSubmitting(true);
-        },
-        onSuccess: async () => {
-          await revalidateUsersAction();
-          toast.success(
-            "Account created successfully! Please check your email to verify your account.",
-          );
-          setSubmitting(false);
-          setFullname("");
-          setUsername("");
-          setEmail("");
-          setPassword("");
-          setConfirmPassword("");
-          setCommission(0);
-        },
-        onError: (ctx) => {
-          toast.error(`Error while creating Account: ${ctx.error.message}`);
-          setSubmitting(false);
-        },
-      },
-    );
+        confirmPassword,
+        commission,
+        selectedSites,
+      );
+      toast.dismiss(toastId);
+      toast.success(`User ${fullname} created successfully!`);
+      setSubmitting(false);
+      setFullname("");
+      setGender("male");
+      setSelectedSites([]);
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setCommission(0);
+    } catch (error) {
+      setSubmitting(false);
+      toast.dismiss(toastId);
+      toast.error(
+        `Error creating user: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
   };
 
   return (
@@ -116,7 +117,7 @@ export default function CreateUserForm() {
             Fill in the details below to create a new user account.
           </DialogDescription>
         </DialogHeader>
-        <form action={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="name">Full Name</FieldLabel>
@@ -149,6 +150,7 @@ export default function CreateUserForm() {
                     type="number"
                     min={0}
                     max={100}
+                    onFocus={(e) => e.target.select()}
                     value={commission}
                     onChange={(e) => setCommission(parseInt(e.target.value))}
                     required
@@ -156,22 +158,75 @@ export default function CreateUserForm() {
                 </Field>
               </Field>
             </Field>
-            <Field>
-              <FieldLabel htmlFor="gender">Gender</FieldLabel>
-              <RadioGroup
-                defaultValue="male"
-                className="flex items-center justify-around"
-                onValueChange={(value) => setGender(value)}
-              >
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="male" id="male" />
-                  <Label htmlFor="male">Male</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="female" id="female" />
-                  <Label htmlFor="female">Female</Label>
-                </div>
-              </RadioGroup>
+            <Field className="grid grid-cols-2">
+              <Field>
+                <FieldLabel htmlFor="gender">Gender</FieldLabel>
+                <Select
+                  defaultValue="male"
+                  onValueChange={(value) => setGender(value)}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <FieldLabel>Websites</FieldLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between"
+                    >
+                      {selectedSites.length > 0
+                        ? `${selectedSites.length} site${selectedSites.length > 1 ? "s" : ""} selected`
+                        : "Select websites..."}
+                      <ChevronsUpDown className="opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput placeholder="Search websites..." />
+                      <CommandList>
+                        <CommandEmpty>No website found.</CommandEmpty>
+                        <CommandGroup>
+                          {sites.map((site) => (
+                            <CommandItem
+                              key={site.domain}
+                              value={site.domain}
+                              onSelect={() => {
+                                setSelectedSites((prev) =>
+                                  prev.includes(site.domain)
+                                    ? prev.filter((s) => s !== site.domain)
+                                    : [...prev, site.domain]
+                                );
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  selectedSites.includes(site.domain)
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {site.domain}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </Field>
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
