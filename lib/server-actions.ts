@@ -9,6 +9,16 @@ export async function getSitesAction() {
   return allSites();
 }
 
+export async function getUser(userId: string) {
+  const user = await auth.api.getUser({
+    query: {
+        id: userId,
+    },
+    headers: await headers(),
+});
+  return user;
+}
+
 export async function getUsersByRoleAndSite(website: string) {
   const { users } = await auth.api.listUsers({
     query: {

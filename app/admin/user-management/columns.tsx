@@ -23,18 +23,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { UserWithRole } from "better-auth/plugins";
 import { toast } from "sonner";
 import {
   banUserAction,
   unbanUserAction,
   deleteUserAction,
 } from "@/lib/server-actions";
-
-interface User extends UserWithRole {
-  commission: number;
-  username: string;
-}
+import type { User } from "@/lib/types";
 
 const BanUser = async (user: User) => {
   const toastId = toast.loading(`Banning user ${user.name}...`);

@@ -1,20 +1,14 @@
+import type { auth } from "@/lib/auth";
+
+// Better Auth types
+export type Session = typeof auth.$Infer.Session;
+export type User = typeof auth.$Infer.Session.user;
+
 export interface Sites {
     domain: string;
     url: string;
     favicon: string;
     propertyId: string;
-}
-
-export interface User {
-    id: string;
-    name: string;
-    email: string;
-    username: string;
-    image: string;
-    commission: number;
-    accessibleSites: string[];
-    role: "admin" | "user";
-    isbanned: boolean;
 }
 
 export interface Payment {

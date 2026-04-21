@@ -30,17 +30,8 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { PaymentManagement } from "./payment-management";
-
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  name: string;
-  gender: string;
-  commission: number;
-  createdAt: Date;
-  avatar?: string;
-}
+import { getUser } from "@/lib/server-actions";
+import type { User } from "@/lib/types";
 
 export default function UserStats({
   params,
@@ -60,24 +51,20 @@ export default function UserStats({
       const paramsData = await params;
       const searchParamsData = await searchParams;
 
+      const userIdFromParams = (searchParamsData.id as string) || "";
       setUsername(paramsData.username);
-      setUserId((searchParamsData.id as string) || "user1");
+      setUserId(userIdFromParams);
 
-      // Mock user data - in real app, fetch from API
-      const mockUser: User = {
-        id: (searchParamsData.id as string) || "user1",
-        username: paramsData.username,
-        email: `${paramsData.username}@example.com`,
-        name:
-          paramsData.username.charAt(0).toUpperCase() +
-          paramsData.username.slice(1),
-        gender: "male",
-        commission: 5.5,
-        createdAt: new Date("2024-01-15"),
-        avatar: undefined,
-      };
-      setUser(mockUser);
-      setEditForm(mockUser);
+      try {
+        const userData = await getUser(userIdFromParams);
+        if (userData) {
+          const typedUser = userData as unknown as User;
+          setUser(typedUser);
+          setEditForm(typedUser);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
     };
 
     fetchData();
@@ -195,7 +182,7 @@ export default function UserStats({
         <CardContent>
           <div className="flex items-center space-x-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarImage src={user.image as string} alt={user.name} />
               <AvatarFallback>
                 {user.name.charAt(0).toUpperCase()}
               </AvatarFallback>
@@ -204,12 +191,21 @@ export default function UserStats({
               <h3 className="text-lg font-semibold">{user.name}</h3>
               <p className="text-sm text-muted-foreground">@{user.username}</p>
               <p className="text-sm text-muted-foreground">{user.email}</p>
-              <div className="flex gap-2">
-                <Badge variant="secondary">{user.gender}</Badge>
-                <Badge variant="outline">Commission: {user.commission}%</Badge>
+              <div className="flex gap-2 flex-wrap">
+                {user.gender && <Badge variant="secondary">{user.gender}</Badge>}
+                {user.commission !== undefined && <Badge variant="outline">Commission: {user.commission}%</Badge>}
+                {user.accessibleSites && user.accessibleSites.length > 0 && (
+                  <>
+                    {user.accessibleSites.map((site) => (
+                      <Badge key={site} variant="default">
+                        {site}
+                      </Badge>
+                    ))}
+                  </>
+                )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Joined {format(user.createdAt, "PPP")}
+                Joined {format(new Date(user.createdAt), "PPP")}
               </p>
             </div>
           </div>

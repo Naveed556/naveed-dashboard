@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import Header from "@/components/home-blocks/header";
 
 export default function PrivacyPolicy() {
   return (
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden">
-      <Header />
       <div className="px-6 md:px-10 py-16 md:py-24">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
@@ -154,19 +152,20 @@ export default function PrivacyPolicy() {
                 Your Consent
               </h2>
               <p className="text-muted-foreground mb-4 text-sm leading-relaxed">
-                BY ACCESSING THE SERVICES AND/OR USING THE SERVICES, YOU AGREE TO
-                THE TERMS AND CONDITIONS SET FORTH IN THIS PRIVACY POLICY,
+                BY ACCESSING THE SERVICES AND/OR USING THE SERVICES, YOU AGREE
+                TO THE TERMS AND CONDITIONS SET FORTH IN THIS PRIVACY POLICY,
                 INCLUDING TO THE COLLECTION AND PROCESSING OF YOUR PERSONAL
-                INFORMATION AS DEFINED BELOW. IF YOU DISAGREE TO ANY TERM PROVIDED
-                HEREIN, YOU MAY NOT USE THE SERVICES.
+                INFORMATION AS DEFINED BELOW. IF YOU DISAGREE TO ANY TERM
+                PROVIDED HEREIN, YOU MAY NOT USE THE SERVICES.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Please note: you are not obligated by law to provide us with any
                 Personal Information. You hereby acknowledge and agree that you
-                are providing us with Personal Information at your own free will,
-                for the purpose of providing you with the Services. You hereby
-                agree that we may retain such Personal Information pursuant to
-                this Privacy Policy and any applicable laws and regulations.
+                are providing us with Personal Information at your own free
+                will, for the purpose of providing you with the Services. You
+                hereby agree that we may retain such Personal Information
+                pursuant to this Privacy Policy and any applicable laws and
+                regulations.
               </p>
             </section>
 
@@ -184,10 +183,10 @@ export default function PrivacyPolicy() {
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Non-identifiable and anonymous information that does not
-                    reveal your identity. This includes technical information such
-                    as your operating system, browser version, screen resolution,
-                    IP address, duration of usage, click-stream data, and keyboard
-                    language.
+                    reveal your identity. This includes technical information
+                    such as your operating system, browser version, screen
+                    resolution, IP address, duration of usage, click-stream
+                    data, and keyboard language.
                   </p>
                 </div>
                 <div>
@@ -211,9 +210,10 @@ export default function PrivacyPolicy() {
               </div>
               <div className="mt-6 p-4 bg-card border border-border rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  <strong className="text-foreground">Note:</strong> Any Non-Personal Information connected or
-                  linked to any Personal Information shall be deemed as Personal
-                  Information as long as such connection or linkage exists.
+                  <strong className="text-foreground">Note:</strong> Any
+                  Non-Personal Information connected or linked to any Personal
+                  Information shall be deemed as Personal Information as long as
+                  such connection or linkage exists.
                 </p>
               </div>
             </section>
@@ -231,11 +231,11 @@ export default function PrivacyPolicy() {
                     Through Your Use of Services
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    We collect information when you use our Services. We are aware
-                    of your usage patterns and may gather, collect, and record
-                    information relating to such usage. We also collect
-                    information derived from third-party services and providers we
-                    work with.
+                    We collect information when you use our Services. We are
+                    aware of your usage patterns and may gather, collect, and
+                    record information relating to such usage. We also collect
+                    information derived from third-party services and providers
+                    we work with.
                   </p>
                 </div>
                 <div>
@@ -243,8 +243,8 @@ export default function PrivacyPolicy() {
                     Voluntary Information
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    We collect Personal Information which you voluntarily provide
-                    when you use our Services.
+                    We collect Personal Information which you voluntarily
+                    provide when you use our Services.
                   </p>
                 </div>
               </div>
@@ -280,16 +280,16 @@ export default function PrivacyPolicy() {
                   abilities
                 </li>
                 <li>
-                  Prevent and defend from frauds, faults, or any other illegal or
-                  forbidden activity
+                  Prevent and defend from frauds, faults, or any other illegal
+                  or forbidden activity
                 </li>
                 <li>
                   Act according to the law and obey all judicial or regulatory
                   demands
                 </li>
                 <li>
-                  Involve in other activities requiring Personal Information with
-                  your prior consent
+                  Involve in other activities requiring Personal Information
+                  with your prior consent
                 </li>
               </ul>
             </section>
@@ -302,17 +302,17 @@ export default function PrivacyPolicy() {
                 Where Do We Store Personal Information?
               </h2>
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                Information regarding the Users will be maintained, processed and
-                stored in the United States and in Israel, and as necessary, in
-                secured cloud storage provided by our third-party service
+                Information regarding the Users will be maintained, processed
+                and stored in the United States and in Israel, and as necessary,
+                in secured cloud storage provided by our third-party service
                 providers.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 While the data protection laws in these jurisdictions may differ
                 from the laws of your residence or location, the Company, its
                 affiliates and service providers are committed to keeping your
-                information protected and secured, pursuant to this Privacy Policy
-                and industry standards, regardless of any lesser legal
+                information protected and secured, pursuant to this Privacy
+                Policy and industry standards, regardless of any lesser legal
                 requirements that may apply in their jurisdiction.
               </p>
             </section>
@@ -342,8 +342,8 @@ export default function PrivacyPolicy() {
               </h2>
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                 We welcome all qualified candidates to apply to open positions.
-                When candidates apply, they provide their contact details and CV.
-                Since privacy and discreetness are very important to our
+                When candidates apply, they provide their contact details and
+                CV. Since privacy and discreetness are very important to our
                 candidates, we are committed to keeping your information private
                 and use it solely for our internal recruitment purposes.
               </p>
@@ -355,8 +355,9 @@ export default function PrivacyPolicy() {
                 applications.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                If you previously submitted your candidate information and wish to
-                access it, update it, or have it deleted, please contact us at{" "}
+                If you previously submitted your candidate information and wish
+                to access it, update it, or have it deleted, please contact us
+                at{" "}
                 <Link
                   href="mailto:contactus"
                   className="text-primary hover:text-primary/80 transition-colors"
@@ -382,9 +383,9 @@ export default function PrivacyPolicy() {
                     We may share your Personal Information with selected service
                     providers whose services complement, facilitate and enhance
                     our own. These include hosting and server services, data and
-                    cyber security services, web analytics, and business advisors.
-                    Third Party Services may only use your information for their
-                    specified purposes.
+                    cyber security services, web analytics, and business
+                    advisors. Third Party Services may only use your information
+                    for their specified purposes.
                   </p>
                 </div>
                 <div>
@@ -393,9 +394,9 @@ export default function PrivacyPolicy() {
                   </h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     We may disclose your Personal Information pursuant to legal
-                    requests, such as a subpoena, search warrant, or court order,
-                    or in compliance with applicable laws if we have a good faith
-                    belief that we are legally required to do so.
+                    requests, such as a subpoena, search warrant, or court
+                    order, or in compliance with applicable laws if we have a
+                    good faith belief that we are legally required to do so.
                   </p>
                 </div>
                 <div>
@@ -405,7 +406,8 @@ export default function PrivacyPolicy() {
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     We may share your Personal Information if we believe in good
                     faith that this will help protect the rights, property, or
-                    personal safety of our company, users, or the general public.
+                    personal safety of our company, users, or the general
+                    public.
                   </p>
                 </div>
                 <div>
@@ -415,9 +417,9 @@ export default function PrivacyPolicy() {
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Your Personal Information may be shared with the parties
                     involved in any change in control of our company, including
-                    merger, acquisition, or purchase of substantially all assets.
-                    We will notify you if such changes materially affect your
-                    Personal Information.
+                    merger, acquisition, or purchase of substantially all
+                    assets. We will notify you if such changes materially affect
+                    your Personal Information.
                   </p>
                 </div>
               </div>
@@ -433,20 +435,20 @@ export default function PrivacyPolicy() {
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                 If the law applicable to you grants you such rights, you may ask
                 to access, correct, or delete your Personal Information that is
-                stored in our systems. You may also ask for our confirmation as to
-                whether or not we process your Personal Information.
+                stored in our systems. You may also ask for our confirmation as
+                to whether or not we process your Personal Information.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                Subject to the limitations in law, you may request that we update,
-                correct, or delete inaccurate or outdated information. You may
-                also request that we suspend the use of any Personal Information
-                whose accuracy you contest while we verify the status of that
-                data.
+                Subject to the limitations in law, you may request that we
+                update, correct, or delete inaccurate or outdated information.
+                You may also request that we suspend the use of any Personal
+                Information whose accuracy you contest while we verify the
+                status of that data.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                 You may also have the right to obtain a copy of the Personal
-                Information you directly provided to us in a structured, commonly
-                used, and machine-readable format.
+                Information you directly provided to us in a structured,
+                commonly used, and machine-readable format.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 To exercise any of these rights, contact us at{" "}
@@ -471,28 +473,24 @@ export default function PrivacyPolicy() {
               </h2>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-medium text-foreground mb-2">
-                    Minors
-                  </h3>
+                  <h3 className="font-medium text-foreground mb-2">Minors</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
-                    To use our Services, you must be over the age of sixteen (16).
-                    We do not knowingly collect Personal Information from minors
-                    under the age of sixteen (16). We reserve the right to request
-                    proof of age to verify that minors under the age of sixteen
-                    (16) are not using the Services.
+                    To use our Services, you must be over the age of sixteen
+                    (16). We do not knowingly collect Personal Information from
+                    minors under the age of sixteen (16). We reserve the right
+                    to request proof of age to verify that minors under the age
+                    of sixteen (16) are not using the Services.
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-medium text-foreground mb-2">
-                    Security
-                  </h3>
+                  <h3 className="font-medium text-foreground mb-2">Security</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     We take great care in implementing and maintaining the
                     security of our Services and your Personal Information. We
-                    employ industry standard procedures and policies to ensure the
-                    safety of your Personal Information and prevent unauthorized
-                    use. However, we do not guarantee that unauthorized access
-                    will never occur.
+                    employ industry standard procedures and policies to ensure
+                    the safety of your Personal Information and prevent
+                    unauthorized use. However, we do not guarantee that
+                    unauthorized access will never occur.
                   </p>
                 </div>
               </div>
@@ -515,17 +513,15 @@ export default function PrivacyPolicy() {
               </p>
               <div className="space-y-4">
                 <div>
-                  <h3 className="font-medium text-foreground mb-2">
-                    Cookies
-                  </h3>
+                  <h3 className="font-medium text-foreground mb-2">Cookies</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Small data files (cookies) are downloaded and stored on your
                     device for session authentication, security, preference
                     management, advertising, and performance monitoring. You can
-                    delete or block cookies through your browser settings. Please
-                    note that deleting cookies or disabling tracking technologies
-                    may prevent you from accessing certain areas of our Services
-                    or adversely affect your user experience.
+                    delete or block cookies through your browser settings.
+                    Please note that deleting cookies or disabling tracking
+                    technologies may prevent you from accessing certain areas of
+                    our Services or adversely affect your user experience.
                   </p>
                 </div>
                 <div>
@@ -557,21 +553,22 @@ export default function PrivacyPolicy() {
               <p className="text-muted-foreground text-sm leading-relaxed mb-4">
                 You agree that we may use your contact details provided during
                 registration to inform you regarding our products and Services
-                which may interest you, and to send you other marketing material.
-                You may withdraw your consent by sending a written notice to us at{" "}
+                which may interest you, and to send you other marketing
+                material. You may withdraw your consent by sending a written
+                notice to us at{" "}
                 <Link
                   href="mailto:contactus"
                   className="text-primary hover:text-primary/80 transition-colors"
                 >
                   contactus
-                </Link>
-                {" "}or by pressing the "Unsubscribe" button in the email.
+                </Link>{" "}
+                or by pressing the "Unsubscribe" button in the email.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Please note that we may contact you with important information
                 regarding our Services, such as changes or updates, payment
-                issues, or service maintenance. You will not be able to opt-out of
-                receiving such service messages.
+                issues, or service maintenance. You will not be able to opt-out
+                of receiving such service messages.
               </p>
             </section>
 
@@ -591,10 +588,10 @@ export default function PrivacyPolicy() {
               <p className="text-muted-foreground text-sm leading-relaxed">
                 We will notify you regarding substantial changes by changing the
                 link to the Privacy Policy and/or by sending you an email. Such
-                substantial changes will take effect seven (7) days after notice.
-                All other changes are effective as of the stated "Last Revised"
-                date, and your continued use of the Services constitutes
-                acceptance of these changes.
+                substantial changes will take effect seven (7) days after
+                notice. All other changes are effective as of the stated "Last
+                Revised" date, and your continued use of the Services
+                constitutes acceptance of these changes.
               </p>
             </section>
 
@@ -613,8 +610,9 @@ export default function PrivacyPolicy() {
                   className="text-primary hover:text-primary/80 transition-colors"
                 >
                   contactus
-                </Link>
-                {" "}and we will make an effort to reply within a reasonable timeframe.
+                </Link>{" "}
+                and we will make an effort to reply within a reasonable
+                timeframe.
               </p>
             </section>
 
@@ -628,5 +626,5 @@ export default function PrivacyPolicy() {
         </div>
       </div>
     </main>
-    );
-  }
+  );
+}
