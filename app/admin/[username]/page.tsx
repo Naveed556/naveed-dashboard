@@ -28,10 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { format } from "date-fns";
 import { PaymentManagement } from "./payment-management";
 import { getUser } from "@/lib/server-actions";
 import type { User } from "@/lib/types";
+import { BanknoteIcon, WalletIcon } from "lucide-react";
 
 export default function UserStats({
   params,
@@ -45,6 +48,7 @@ export default function UserStats({
   const [editForm, setEditForm] = useState<Partial<User>>({});
   const [username, setUsername] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
+  const [currentTab, setCurrentTab] = useState<string>("payments");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,9 +85,13 @@ export default function UserStats({
     return <div>Loading...</div>;
   }
 
+  // accessibleSites may live directly on the user or nested under user.data
+  const accessibleSites: string[] =
+    (user as any).accessibleSites ?? (user as any).data?.accessibleSites ?? [];
+
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* User Information Section */}
+      {/* ── User Information Section ─────────────────────── */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -192,17 +200,19 @@ export default function UserStats({
               <p className="text-sm text-muted-foreground">@{user.username}</p>
               <p className="text-sm text-muted-foreground">{user.email}</p>
               <div className="flex gap-2 flex-wrap">
-                {user.gender && <Badge variant="secondary">{user.gender}</Badge>}
-                {user.commission !== undefined && <Badge variant="outline">Commission: {user.commission}%</Badge>}
-                {user.accessibleSites && user.accessibleSites.length > 0 && (
-                  <>
-                    {user.accessibleSites.map((site) => (
-                      <Badge key={site} variant="default">
-                        {site}
-                      </Badge>
-                    ))}
-                  </>
+                {user.gender && (
+                  <Badge variant="secondary">{user.gender}</Badge>
                 )}
+                {user.commission !== undefined && (
+                  <Badge variant="outline">
+                    Commission: {user.commission}%
+                  </Badge>
+                )}
+                {accessibleSites.map((site) => (
+                  <Badge key={site} variant="default">
+                    {site}
+                  </Badge>
+                ))}
               </div>
               <p className="text-xs text-muted-foreground">
                 Joined {format(new Date(user.createdAt), "PPP")}
@@ -212,8 +222,31 @@ export default function UserStats({
         </CardContent>
       </Card>
 
-      {/* Payment Management Component */}
-      <PaymentManagement userId={userId} username={username} />
+      <Tabs
+        defaultValue={currentTab}
+        onValueChange={(value) => setCurrentTab(value)}
+        className="w-full"
+      >
+        <TabsList>
+          <TabsTrigger value="payments">
+            <WalletIcon />
+            Payment Information
+          </TabsTrigger>
+          <TabsTrigger value="revenue">
+            <BanknoteIcon />
+            Revenue Report
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      {/* ── Payment Management ───────────────────────────── */}
+      {currentTab === "payments" && (
+        <PaymentManagement
+          userId={userId}
+          username={username}
+          accessibleSites={accessibleSites}
+        />
+      )}
     </div>
   );
 }

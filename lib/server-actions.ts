@@ -93,6 +93,21 @@ export async function createUserAction(
   revalidatePath("/admin/user-management");
 }
 
+export async function updateUserAction(
+  userId: string,
+  data: { name?: string; email?: string; gender?: string; commission?: number; accessibleSites?: string[] },
+) {
+  const updatedUser = await auth.api.adminUpdateUser({
+    body: {
+        userId: userId,
+        data: data,
+    },
+    headers: await headers(),
+  });
+  console.log("Updated user:", updatedUser);
+  revalidatePath(`/admin/${updatedUser?.username}?id=${userId}`);
+}
+
 export async function banUserAction(userId: string) {
   await auth.api.banUser({
     body: { userId },

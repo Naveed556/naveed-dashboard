@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@better-auth/infra": "^0.2.0",
+    "@google-analytics/data": "^5.2.1",
     "@tanstack/react-table": "^8.21.3",
     "better-auth": "^1.6.2",
     "class-variance-authority": "^0.7.1",
