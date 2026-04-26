@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -35,6 +36,7 @@ import { PaymentManagement } from "./payment-management";
 import { getUser } from "@/lib/server-actions";
 import type { User } from "@/lib/types";
 import { BanknoteIcon, WalletIcon } from "lucide-react";
+import RevenueReport from "./revenue-report";
 
 export default function UserStats({
   params,
@@ -49,6 +51,17 @@ export default function UserStats({
   const [username, setUsername] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [currentTab, setCurrentTab] = useState<string>("payments");
+  const router = useRouter();
+
+  const handleTabChange = (value: string) => {
+    setCurrentTab(value);
+    const newSearchParams = new URLSearchParams(window.location.search);
+    newSearchParams.set("tab", value);
+    router.replace(
+      `${window.location.pathname}?${newSearchParams.toString()}`,
+      { scroll: false },
+    );
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,8 +69,10 @@ export default function UserStats({
       const searchParamsData = await searchParams;
 
       const userIdFromParams = (searchParamsData.id as string) || "";
+      const tabFromParams = (searchParamsData.tab as string) || "payments";
       setUsername(paramsData.username);
       setUserId(userIdFromParams);
+      setCurrentTab(tabFromParams);
 
       try {
         const userData = await getUser(userIdFromParams);
@@ -223,8 +238,8 @@ export default function UserStats({
       </Card>
 
       <Tabs
-        defaultValue={currentTab}
-        onValueChange={(value) => setCurrentTab(value)}
+        value={currentTab}
+        onValueChange={handleTabChange}
         className="w-full"
       >
         <TabsList>
@@ -240,13 +255,15 @@ export default function UserStats({
       </Tabs>
 
       {/* ── Payment Management ───────────────────────────── */}
-      {currentTab === "payments" && (
+      {currentTab === "payments" ? (
         <PaymentManagement
           userId={userId}
           username={username}
           accessibleSites={accessibleSites}
           canMarkPaid={true}
         />
+      ) : (
+        <RevenueReport />
       )}
     </div>
   );
