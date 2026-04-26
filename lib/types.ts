@@ -13,6 +13,7 @@ export interface Sites {
 
 export interface Payment {
     month: string;
+    monthNumber: number;
     year: number;
     website: string;
     userEarnings: number;

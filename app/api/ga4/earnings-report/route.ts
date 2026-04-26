@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
             ],
         });
 
+        return NextResponse.json(response);
     } catch (error) {
         return NextResponse.json({ error: "Failed to fetch earnings report", details: error }, { status: 500 });
     }

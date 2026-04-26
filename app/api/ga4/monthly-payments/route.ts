@@ -14,11 +14,14 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
 export async function POST(request: NextRequest) {
     try {
         // Parse the request body to get the username
-        const username = "adeell";
-        const propertyId = '520376914';
+        const { username, propertyId } = await request.json();
 
         if (!username || username.trim() === "") {
-            return NextResponse.json({ error: "username is missing or empty." });
+            return NextResponse.json({ error: "username is missing or empty." }, { status: 400 });
+        }
+
+        if (!propertyId || propertyId.trim() === "") {
+            return NextResponse.json({ error: "propertyId is missing or empty." }, { status: 400 });
         }
 
         // Run the Google Analytics report
@@ -26,20 +29,21 @@ export async function POST(request: NextRequest) {
             property: `properties/${propertyId}`,
             dimensions: [
                 { name: "sessionCampaignName" },
-                { name: "month" },  // Group results by month
+                { name: "month" },
+                { name: "year" },
             ],
             metrics: [
-                { name: "totalRevenue" },  // Get the total revenue metric
+                { name: "totalRevenue" },
             ],
             dateRanges: [
-                { startDate: "2025-01-01", endDate: "today" },  // Get data from the earliest possible date until now
+                { startDate: "2025-01-01", endDate: "today" },
             ],
             dimensionFilter: {
                 filter: {
                     fieldName: "sessionCampaignName",
                     stringFilter: {
                         matchType: "ENDS_WITH",
-                        value: `_${username}` // Filter campaigns containing the username dynamically
+                        value: `_${username}`
                     }
                 }
             },
@@ -48,60 +52,46 @@ export async function POST(request: NextRequest) {
                     dimension: { orderType: "NUMERIC", dimensionName: "month" }
                 }
             ],
-            keepEmptyRows: true  // Include rows even if metrics are 0
+            keepEmptyRows: true
         });
-
-        // Log raw API response for debugging
-        // console.log('Raw API response rows:', response.rows?.length || 0);
-        // console.log('Full response:', JSON.stringify(response, null, 2));
 
         if (!response.rows || response.rows.length === 0) {
             console.warn(`No data returned from GA4 API. Filter: campaigns ending with "_${username}"`);
             return NextResponse.json([]);
         }
 
-        // Helper function to generate date ranges for each month
-        function getDateRange(month: number) {
-            const year = new Date().getFullYear();  // Get current year
-            const firstDate = `01-${month}-${year}`;
-            const lastDate = new Date(year, month, 0).getDate(); // Last day of the month
-            return `${firstDate} to ${lastDate}-${month}-${year}`;
-        }
-
-        // Helper function to convert month number to month name
         function getMonthName(month: number) {
             const date = new Date();
             date.setMonth(month - 1);  // JavaScript months are zero-based
             return date.toLocaleString('default', { month: 'long' });
         }
 
-        // Format the response
-        const monthRevenueMap = new Map();  // To store the aggregated revenue for each month
+        // Aggregate revenue by year and month
+        const monthRevenueMap = new Map<string, number>();
 
-        // Iterate through all rows and aggregate the revenue by month (including zero revenue)
         response.rows.forEach(row => {
-            const month = row.dimensionValues![1].value;  // Get the month
-            const revenue = parseFloat(row.metricValues![0].value as string);  // Get the revenue for this campaign
-
-            // Sum the revenue for this month
-            if (monthRevenueMap.has(month)) {
-                monthRevenueMap.set(month, monthRevenueMap.get(month) + revenue);  // Add to existing revenue
-            } else {
-                monthRevenueMap.set(month, revenue);  // Initialize the month with its first revenue
-            }
+            const monthStr = row.dimensionValues?.[1]?.value;
+            if (!monthStr) return;
+            const month = parseInt(monthStr);
+            const year = parseInt(row.dimensionValues?.[2]?.value || '0');
+            const revenue = parseFloat(row.metricValues?.[0]?.value || '0');
+            const key = `${year}-${month}`;
+            monthRevenueMap.set(key, (monthRevenueMap.get(key) || 0) + revenue);
         });
 
-        // Convert the Map to an array and format the response
-        const formattedData = Array.from(monthRevenueMap.entries()).map(([month, totalRevenue]) => {
-            const dateRange = getDateRange(month);  // Create date ranges for each month
+        // Format the response
+        const formattedData = Array.from(monthRevenueMap.entries()).map(([key, totalRevenue]) => {
+            const [year, month] = key.split('-').map(Number);
             return {
-                dateRange: dateRange,
-                month: getMonthName(month),  // Convert month number to name
-                revenue: Number(totalRevenue.toFixed(2)) // Format the total revenue to 2 decimal places
+                month: getMonthName(month),
+                monthNumber: month,
+                year,
+                revenue: Number(totalRevenue.toFixed(2)),
             };
         });
 
-
+        // Sort by year and month
+        formattedData.sort((a, b) => a.year - b.year || a.monthNumber - b.monthNumber);
 
         return NextResponse.json(formattedData);
     } catch (error) {

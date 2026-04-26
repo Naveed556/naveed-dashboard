@@ -3,7 +3,14 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { EyeIcon, EyeOffIcon, Loader2Icon, PlusIcon, Check, ChevronsUpDown } from "lucide-react";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  Loader2Icon,
+  PlusIcon,
+  Check,
+  ChevronsUpDown,
+} from "lucide-react";
 import {
   Field,
   FieldDescription,
@@ -12,7 +19,6 @@ import {
 } from "@/components/ui/field";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -206,7 +212,7 @@ export default function CreateUserForm() {
                                 setSelectedSites((prev) =>
                                   prev.includes(site.domain)
                                     ? prev.filter((s) => s !== site.domain)
-                                    : [...prev, site.domain]
+                                    : [...prev, site.domain],
                                 );
                               }}
                             >
@@ -215,7 +221,7 @@ export default function CreateUserForm() {
                                   "mr-2 h-4 w-4",
                                   selectedSites.includes(site.domain)
                                     ? "opacity-100"
-                                    : "opacity-0"
+                                    : "opacity-0",
                                 )}
                               />
                               {site.domain}

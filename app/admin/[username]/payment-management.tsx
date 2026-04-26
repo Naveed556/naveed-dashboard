@@ -10,75 +10,96 @@ import {
 } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 import { paymentColumns } from "./payment-columns";
-import { Payment } from "@/lib/types";
+import { Payment, Sites } from "@/lib/types";
 import { Globe } from "lucide-react";
+import { getPaymentsForUser, getSitesAction } from "@/lib/server-actions";
+
+interface Earnings {
+  month: string;
+  monthNumber: number;
+  year: number;
+  revenue: number;
+}
 
 interface PaymentManagementProps {
   userId: string;
   username: string;
   accessibleSites?: string[];
+  canMarkPaid?: boolean;
 }
 
 export function PaymentManagement({
   userId,
   username,
   accessibleSites = [],
+  canMarkPaid = false,
 }: PaymentManagementProps) {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Demo payments — replace with a real fetch keyed by userId.
-  // Each payment's `website` field must match one of the accessibleSites values.
-  const demoPayments: Payment[] = [
-    {
-      month: "January",
-      year: 2025,
-      website: accessibleSites[0] ?? "example.com",
-      userEarnings: 1200,
-      adminProfit: 300,
-      status: "Paid",
-      paymentDate: "2024-02-05",
-    },
-    {
-      month: "February",
-      year: 2025,
-      website: accessibleSites[0] ?? "example.com",
-      userEarnings: 800,
-      adminProfit: 200,
-      status: "Pending",
-      paymentDate: null,
-    },
-    // Second site demo data — only generated when a second site exists
-    ...(accessibleSites[1]
-      ? [
-          {
-            month: "January",
-            year: 2024,
-            website: accessibleSites[1],
-            userEarnings: 950,
-            adminProfit: 150,
-            status: "Paid" as const,
-            paymentDate: "2024-02-07",
-          },
-          {
-            month: "February",
-            year: 2024,
-            website: accessibleSites[1],
-            userEarnings: 620,
-            adminProfit: 80,
-            status: "Pending" as const,
-            paymentDate: null,
-          },
-        ]
-      : []),
-  ];
-
   useEffect(() => {
-    setPayments(demoPayments);
-    // When you add a real API call, put it here:
-    // setIsLoading(true);
-    // fetchPayments(userId).then(setPayments).finally(() => setIsLoading(false));
-  }, []);
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const allSitesData = await getSitesAction();
+        const siteConfigs = (allSitesData as Sites[]).filter((site) =>
+          accessibleSites.includes(site.domain),
+        );
+
+        if (siteConfigs.length === 0) {
+          setPayments([]);
+          return;
+        }
+
+        const dbPayments = await getPaymentsForUser(userId);
+
+        const siteEarningsPromises = siteConfigs.map(async (site) => {
+          const res = await fetch("/api/ga4/monthly-payments", {
+            method: "POST",
+            body: JSON.stringify({
+              username,
+              propertyId: site.propertyId,
+            }),
+            headers: { "Content-Type": "application/json" },
+          });
+          const earnings: Earnings[] = await res.json();
+          return { site, earnings };
+        });
+
+        const siteEarningsData = await Promise.all(siteEarningsPromises);
+
+        const mergedPayments: Payment[] = siteEarningsData.flatMap(
+          ({ site, earnings }) =>
+            earnings.map((e) => {
+              const payment = dbPayments.find(
+                (p) =>
+                  p.month === e.monthNumber &&
+                  p.year === e.year &&
+                  p.website === site.domain,
+              );
+              return {
+                month: e.month,
+                monthNumber: e.monthNumber,
+                year: e.year,
+                website: site.domain,
+                userEarnings: e.revenue,
+                adminProfit: e.revenue * 0.25,
+                status: payment?.status || "Pending",
+                paymentDate: payment?.paymentDate || null,
+              };
+            }),
+        );
+
+        setPayments(mergedPayments);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [userId, username, accessibleSites]);
 
   // Sites to show — prefer the prop so every accessible site gets a table,
   // even if it has no payments yet. Fall back to unique sites in payment data.
@@ -169,7 +190,7 @@ export function PaymentManagement({
           const sitePayments = paymentsForSite(site);
           const siteEarnings = sitePayments.reduce(
             (s, p) => s + p.userEarnings,
-            0
+            0,
           );
           const sitePending = sitePayments
             .filter((p) => p.status === "Pending")
@@ -223,7 +244,10 @@ export function PaymentManagement({
                     No payments recorded for {site} yet.
                   </p>
                 ) : (
-                  <DataTable columns={paymentColumns} data={sitePayments} />
+                  <DataTable
+                    columns={paymentColumns(userId, canMarkPaid)}
+                    data={sitePayments}
+                  />
                 )}
               </CardContent>
             </Card>

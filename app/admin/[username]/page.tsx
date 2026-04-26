@@ -245,6 +245,7 @@ export default function UserStats({
           userId={userId}
           username={username}
           accessibleSites={accessibleSites}
+          canMarkPaid={true}
         />
       )}
     </div>

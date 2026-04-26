@@ -24,7 +24,7 @@ export function extractDomain(input: string): string | null {
 
 export const totalSites = parseInt(process.env.TOTAL_SITES || "0", 10);
 export const allSites = () => {
-  let sites: Sites[] = [];
+  const sites: Sites[] = [];
   for (let i = 1; i <= totalSites; i++) {
     const url = process.env[`SITE_${i}_URL`]!;
     const domain = extractDomain(url) as string;

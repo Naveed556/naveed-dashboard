@@ -3,11 +3,15 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { BadgeCheckIcon, Clock10Icon } from "lucide-react";
 import { Payment } from "@/lib/types";
+import { updatePaymentStatus } from "@/lib/server-actions";
 
-export const paymentColumns: ColumnDef<Payment>[] = [
+export const paymentColumns = (
+  userId: string,
+  canMarkPaid: boolean,
+): ColumnDef<Payment>[] => [
   {
     accessorKey: "month",
-    header: "Month",
+    header: "Payment Month",
     cell: ({ row }) => {
       const payment = row.original;
       return `${payment.month} ${payment.year}`;
@@ -58,12 +62,31 @@ export const paymentColumns: ColumnDef<Payment>[] = [
     header: "Payment Date",
     cell: ({ row }) => {
       const payment = row.original;
-      return payment.paymentDate
-        ? new Date(payment.paymentDate).toLocaleDateString()
-        : (<Button variant="outline" size="sm">
+      if (payment.status === "Paid") {
+        return payment.paymentDate
+          ? new Date(payment.paymentDate).toLocaleDateString()
+          : "N/A";
+      } else if (canMarkPaid) {
+        return (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              await updatePaymentStatus(
+                userId,
+                payment.monthNumber,
+                payment.year,
+                payment.website,
+                "Paid",
+              );
+            }}
+          >
             Mark as Paid
           </Button>
         );
+      }
+
+      return "N/A";
     },
   },
 ];

@@ -16,7 +16,7 @@ export function WebsiteSelector() {
   const searchParams = useSearchParams();
   const [sites, setSites] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSite, setSelectedSite] = useState<string>("all");
+  const selectedSite = searchParams.get("website") || "all";
 
   useEffect(() => {
     const fetchSites = async () => {
@@ -34,14 +34,7 @@ export function WebsiteSelector() {
     fetchSites();
   }, []);
 
-  useEffect(() => {
-    const website = searchParams.get("website");
-    // If no website param, show "all", otherwise show the selected website
-    setSelectedSite(website || "all");
-  }, [searchParams]);
-
   const handleSelect = (value: string) => {
-    setSelectedSite(value);
     const params = new URLSearchParams();
     // Only set website param if not "all"
     if (value && value !== "all") {
