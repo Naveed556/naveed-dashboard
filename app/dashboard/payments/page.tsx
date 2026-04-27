@@ -149,7 +149,7 @@ export default function PaymentsPage() {
   const totalPaid = paidPayments.reduce((s, p) => s + p.userEarnings, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4">
       {/* Global summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>

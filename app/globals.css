@@ -48,10 +48,10 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* Custom tokens exposed to Tailwind as bg-lime, text-lime-fg, bg-section-alt */
-  --color-lime:         var(--lime);
-  --color-lime-fg:      var(--lime-fg);
-  --color-section-alt:  var(--section-alt);
-  --color-hero-bg:      var(--hero-bg);
+  --color-lime: var(--lime);
+  --color-lime-fg: var(--lime-fg);
+  --color-section-alt: var(--section-alt);
+  --color-hero-bg: var(--hero-bg);
 
   /* Serif display font available as font-serif-display */
   --font-serif-display: 'DM Serif Display', serif;
@@ -67,7 +67,7 @@
   --popover-foreground: oklch(0.141 0.005 285.823);
 
   /* Lime replaces default blue primary */
-  --primary:            oklch(0.82 0.22 131);
+  --primary: oklch(0.82 0.22 131);
   --primary-foreground: oklch(0.14 0.01 131);
 
   --secondary: oklch(0.967 0.001 286.375);
@@ -80,11 +80,11 @@
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.82 0.22 131);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
+  --chart-1: oklch(0.897 0.196 126.665);
+  --chart-2: oklch(0.768 0.233 130.85);
+  --chart-3: oklch(0.648 0.2 131.684);
+  --chart-4: oklch(0.532 0.157 131.589);
+  --chart-5: oklch(0.453 0.124 130.933);
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
@@ -96,10 +96,10 @@
   --sidebar-ring: oklch(0.82 0.22 131);
 
   /* Custom semantic tokens */
-  --lime:        oklch(0.82 0.22 131);
-  --lime-fg:     oklch(0.14 0.01 131);
+  --lime: oklch(0.82 0.22 131);
+  --lime-fg: oklch(0.14 0.01 131);
   --section-alt: oklch(0.965 0.002 286);
-  --hero-bg:     #09090b;
+  --hero-bg: #09090b;
 }
 
 /* ─── DARK THEME ────────────────────────────────────────────── */
@@ -112,7 +112,7 @@
   --popover-foreground: oklch(0.985 0 0);
 
   /* Slightly brighter lime in dark mode */
-  --primary:            oklch(0.85 0.24 131);
+  --primary: oklch(0.85 0.24 131);
   --primary-foreground: oklch(0.12 0.02 131);
 
   --secondary: oklch(0.274 0.006 286.033);
@@ -125,11 +125,11 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.85 0.24 131);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
+  --chart-1: oklch(0.897 0.196 126.665);
+  --chart-2: oklch(0.768 0.233 130.85);
+  --chart-3: oklch(0.648 0.2 131.684);
+  --chart-4: oklch(0.532 0.157 131.589);
+  --chart-5: oklch(0.453 0.124 130.933);
   --sidebar: oklch(0.21 0.006 285.885);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.85 0.24 131);
@@ -140,19 +140,21 @@
   --sidebar-ring: oklch(0.85 0.24 131);
 
   /* Custom semantic tokens */
-  --lime:        oklch(0.85 0.24 131);
-  --lime-fg:     oklch(0.12 0.02 131);
+  --lime: oklch(0.85 0.24 131);
+  --lime-fg: oklch(0.12 0.02 131);
   --section-alt: oklch(0.18 0.005 285);
-  --hero-bg:     oklab(9.792% 0.00118 -0.00424);
+  --hero-bg: oklab(9.792% 0.00118 -0.00424);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }
@@ -165,22 +167,45 @@
   }
 
   @keyframes ticker {
-    from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
   }
+
   .animate-ticker {
     animation: ticker 26s linear infinite;
   }
 
   @keyframes fade-up {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   .animate-fade-up {
     opacity: 0;
     animation: fade-up 0.65s ease forwards;
   }
-  .delay-150 { animation-delay: 150ms; }
-  .delay-300 { animation-delay: 300ms; }
-  .delay-450 { animation-delay: 450ms; }
+
+  .delay-150 {
+    animation-delay: 150ms;
+  }
+
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .delay-450 {
+    animation-delay: 450ms;
+  }
 }

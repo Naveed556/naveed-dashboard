@@ -175,89 +175,91 @@ export default function EarningsPage() {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-        <div className="grid flex-1 gap-1">
-          <CardTitle>My Earnings</CardTitle>
-          <CardDescription>
-            View your earnings over time for each site you have access to.
-          </CardDescription>
-        </div>
-        <div className="flex items-center gap-2">
-          <Select value={timeRange} onValueChange={handlePresetChange}>
-            <SelectTrigger className="w-35">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-            </SelectContent>
-          </Select>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-60 justify-start text-left font-normal"
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateRange.from ? (
-                  dateRange.to ? (
-                    <>
-                      {format(dateRange.from, "LLL dd, y")} -{" "}
-                      {format(dateRange.to, "LLL dd, y")}
-                    </>
+    <div className="space-y-6 p-4">
+      <Card>
+        <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
+          <div className="grid flex-1 gap-1">
+            <CardTitle>My Earnings</CardTitle>
+            <CardDescription>
+              View your earnings over time for each site you have access to.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={timeRange} onValueChange={handlePresetChange}>
+              <SelectTrigger className="w-35">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
+              </SelectContent>
+            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-60 justify-start text-left font-normal"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
                   ) : (
-                    format(dateRange.from, "LLL dd, y")
-                  )
-                ) : (
-                  <span>Pick a date range</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                autoFocus
-                mode="range"
-                defaultMonth={dateRange.from}
-                selected={dateRange}
-                onSelect={(range) => {
-                  if (range && range.from && range.to) {
-                    setDateRange({ from: range.from, to: range.to });
-                    setTimeRange("custom");
-                  }
-                }}
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
-      </CardHeader>
+                    <span>Pick a date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  autoFocus
+                  mode="range"
+                  defaultMonth={dateRange.from}
+                  selected={dateRange}
+                  onSelect={(range) => {
+                    if (range && range.from && range.to) {
+                      setDateRange({ from: range.from, to: range.to });
+                      setTimeRange("custom");
+                    }
+                  }}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </CardHeader>
 
-      <CardContent className="space-y-4 px-2 pt-4 sm:px-6 sm:pt-6">
-        {siteConfigs.length === 0 ? (
-          <div className="flex items-center justify-center h-64 text-muted-foreground">
-            {accessibleSites.length === 0
-              ? "No sites assigned to your account yet."
-              : "Loading site configurations..."}
-          </div>
-        ) : (
-          <div className="grid gap-4">
-            {siteReports.map(({ site, data, error }) => (
-              <SiteRevenueChart
-                key={site.domain}
-                siteName={site.domain}
-                data={data}
-                loading={loading}
-                description={
-                  error ??
-                  `Your earnings for ${site.domain} from ${format(dateRange.from!, "LLL dd, y")} to ${format(dateRange.to!, "LLL dd, y")}.`
-                }
-              />
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        <CardContent className="space-y-4 px-2 pt-4 sm:px-6 sm:pt-6">
+          {siteConfigs.length === 0 ? (
+            <div className="flex items-center justify-center h-64 text-muted-foreground">
+              {accessibleSites.length === 0
+                ? "No sites assigned to your account yet."
+                : "Loading site configurations..."}
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {siteReports.map(({ site, data, error }) => (
+                <SiteRevenueChart
+                  key={site.domain}
+                  siteName={site.domain}
+                  data={data}
+                  loading={loading}
+                  description={
+                    error ??
+                    `Your earnings for ${site.domain} from ${format(dateRange.from!, "LLL dd, y")} to ${format(dateRange.to!, "LLL dd, y")}.`
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
