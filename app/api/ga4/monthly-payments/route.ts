@@ -1,3 +1,4 @@
+import { PlatformExpense } from "@/lib/constants";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { NextResponse, NextRequest } from "next/server";
 
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
                 month: getMonthName(month),
                 monthNumber: month,
                 year,
-                revenue: Number(totalRevenue.toFixed(2)),
+                revenue: Number((totalRevenue - (totalRevenue * PlatformExpense)).toFixed(2)),
             };
         });
 

@@ -459,6 +459,7 @@ export default function UserStats({
         <PaymentManagement
           userId={userId}
           username={username}
+          user={user}
           accessibleSites={accessibleSites}
           canMarkPaid={true}
         />

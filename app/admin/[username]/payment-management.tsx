@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/card";
 import { DataTable } from "@/components/data-table";
 import { paymentColumns } from "./payment-columns";
-import { Payment, Sites } from "@/lib/types";
-import { Globe } from "lucide-react";
+import { Payment, Sites, User } from "@/lib/types";
 import { getPaymentsForUser, getSitesAction } from "@/lib/server-actions";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,12 +25,14 @@ interface Earnings {
 interface PaymentManagementProps {
   userId: string;
   username: string;
+  user: User;
   accessibleSites?: string[];
   canMarkPaid?: boolean;
 }
 
 export function PaymentManagement({
   userId,
+  user,
   username,
   accessibleSites = [],
   canMarkPaid = false,
@@ -85,7 +86,7 @@ export function PaymentManagement({
                 year: e.year,
                 website: site.domain,
                 userEarnings: e.revenue,
-                adminProfit: e.revenue * 0.25,
+                adminProfit: e.revenue * (user.commission / 100),
                 status: payment?.status || "Pending",
                 paymentDate: payment?.paymentDate || null,
               };
@@ -208,7 +209,6 @@ export function PaymentManagement({
                   {/* Site title + description */}
                   <div>
                     <CardTitle className="flex items-center gap-2">
-                      {/* <Globe className="h-4 w-4 text-muted-foreground" /> */}
                       <Avatar className="h-4 w-4 rounded-lg">
                         <AvatarImage
                           src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(site)}&sz=64`}

@@ -1,4 +1,5 @@
 // https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema
+import { PlatformExpense } from "@/lib/constants";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -75,11 +76,13 @@ export async function POST(request: NextRequest) {
 
         // Map the aggregated data to the required format
         const data = Array.from(dateMap, ([date, { totalUsers, totalRevenue }]) => {
-            const avgRpm = totalUsers > 0 ? (totalRevenue / totalUsers) * 1000 : 0;
+            const totalUsersAfterFee = Math.floor(totalUsers - (totalUsers * PlatformExpense));
+            const totalRevenueAfterFee = totalRevenue - (totalRevenue * PlatformExpense);
+            const avgRpm = totalUsers > 0 ? (totalRevenueAfterFee / totalUsersAfterFee) * 1000 : 0;
             return {
                 date: formatDate(date),
-                impressions: totalUsers,
-                totalRevenue: Number(totalRevenue.toFixed(2)),
+                impressions: totalUsersAfterFee,
+                totalRevenue: Number(totalRevenueAfterFee.toFixed(2)),
                 rpm: Number(avgRpm.toFixed(2)),
             };
         });

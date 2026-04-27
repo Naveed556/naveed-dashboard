@@ -31,7 +31,7 @@ export const paymentColumns = (
   },
   {
     accessorKey: "adminProfit",
-    header: "Platform Fee",
+    header: "Admin Profit",
     cell: ({ row }) => {
       const payment = row.original;
       return `$${payment.adminProfit.toFixed(2)}`;

@@ -1,0 +1,1 @@
+export const PlatformExpense = 0.50; // 50% platform fee
