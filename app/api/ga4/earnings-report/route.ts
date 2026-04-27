@@ -13,8 +13,11 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
 
 export async function POST(request: NextRequest) {
     try {
-        const propertyId = '520376914';
-        const { username, startDate, endDate } = await request.json();
+        const { username, propertyId, startDate, endDate } = await request.json();
+
+        if (!propertyId || propertyId.trim() === "") {
+            return NextResponse.json({ error: "propertyId is missing or empty." }, { status: 400 });
+        }
 
         if (!username || username.trim() === "") {
             return NextResponse.json({ error: "username parameter is missing or empty." });
@@ -76,8 +79,8 @@ export async function POST(request: NextRequest) {
             return {
                 date: formatDate(date),
                 impressions: totalUsers,
-                totalRevenue: totalRevenue.toFixed(2),
-                rpm: avgRpm.toFixed(2)
+                totalRevenue: Number(totalRevenue.toFixed(2)),
+                rpm: Number(avgRpm.toFixed(2)),
             };
         });
 

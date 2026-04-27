@@ -115,16 +115,35 @@ export async function createUserAction(
 export async function updateUserAction(
   userId: string,
   data: { name?: string; email?: string; gender?: string; commission?: number; accessibleSites?: string[] },
-) {
-  const updatedUser = await auth.api.adminUpdateUser({
+): Promise<User> {
+  if (data.email) {
+    const result = await auth.api.listUsers({
+      query: {
+        limit: 1,
+        offset: 0,
+        filterField: "email",
+        filterOperator: "eq",
+        filterValue: data.email,
+      },
+      headers: await headers(),
+    });
+
+    const existingUser = result.users?.[0];
+    if (existingUser && existingUser.id !== userId) {
+      throw new Error("The provided email is already in use by another user.");
+    }
+  }
+
+  const updatedUser = (await auth.api.adminUpdateUser({
     body: {
       userId: userId,
       data: data,
     },
     headers: await headers(),
-  }) as User;
-  console.log("Updated user:", updatedUser);
+  })) as User;
+
   revalidatePath(`/admin/${updatedUser?.username}?id=${userId}`);
+  return updatedUser;
 }
 
 export async function banUserAction(userId: string) {

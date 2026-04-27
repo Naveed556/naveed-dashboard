@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -20,97 +23,116 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CalendarIcon } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import {
-  ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
 import { format } from "date-fns";
-import { useParams } from "next/navigation";
+import { getSitesAction } from "@/lib/server-actions";
+import {
+  SiteRevenueChart,
+  type RevenueData,
+} from "@/components/site-revenue-chart";
+import type { Sites } from "@/lib/types";
+import { toast } from "sonner";
 
-interface RevenueData {
-  date: string;
-  impressions: number;
-  totalRevenue: number;
-  rpm: number;
+interface SiteReport {
+  site: Sites;
+  data: RevenueData[];
+  error?: string;
 }
 
-const chartConfig = {
-  impressions: {
-    label: "Impressions",
-    color: "var(--chart-1)",
-  },
-  totalRevenue: {
-    label: "Total Revenue",
-    color: "var(--chart-2)",
-  },
-} satisfies ChartConfig;
-
-export default function RevenueReport() {
-  const params = useParams();
-  const username = params.username as string;
+export default function RevenueReport({
+  username,
+  accessibleSites,
+}: {
+  username: string;
+  accessibleSites: string[];
+}) {
   const [dateRange, setDateRange] = useState<{
     from: Date | undefined;
     to: Date | undefined;
   }>({
-    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     to: new Date(),
   });
   const [timeRange, setTimeRange] = useState("30d");
-  const [data, setData] = useState<RevenueData[]>([]);
+  const [siteReports, setSiteReports] = useState<SiteReport[]>([]);
+  const [siteConfigs, setSiteConfigs] = useState<Sites[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchData = async (startDate: string, endDate: string) => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/ga4/earnings-report", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          propertyId: process.env.NEXT_PUBLIC_GA4_PROPERTY_ID,
-          username,
-          startDate,
-          endDate,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
+  useEffect(() => {
+    const loadSites = async () => {
+      try {
+        const allSites = (await getSitesAction()) as Sites[];
+        const filteredSites = (allSites ?? []).filter((site) =>
+          accessibleSites.includes(site.domain),
+        );
+        setSiteConfigs(filteredSites);
+      } catch (error) {
+        toast.error(`Error loading site configurations: ${error}`);
+        console.error("Failed to load site configurations:", error);
+        setSiteConfigs([]);
       }
+    };
 
-      const result = (await response.json()) as RevenueData[];
-      setData(result);
-    } catch (error) {
-      console.error("Error fetching revenue data:", error);
-      // Set some sample data for demo
-      setData([
-        { date: "2026-04-20", impressions: 68, totalRevenue: 56.0, rpm: 0.0 },
-        { date: "2026-04-21", impressions: 113, totalRevenue: 7.0, rpm: 0.0 },
-        { date: "2026-04-22", impressions: 114, totalRevenue: 100.0, rpm: 0.0 },
-        { date: "2026-04-23", impressions: 164, totalRevenue: 56.0, rpm: 0.0 },
-        { date: "2026-04-24", impressions: 153, totalRevenue: 67.7, rpm: 0.0 },
-        { date: "2026-04-25", impressions: 158, totalRevenue: 45.0, rpm: 0.0 },
-        { date: "2026-04-26", impressions: 57, totalRevenue: 67.0, rpm: 0.0 },
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    loadSites();
+  }, [accessibleSites]);
 
   useEffect(() => {
-    if (dateRange.from && dateRange.to) {
+    const fetchReports = async () => {
+      if (!dateRange.from || !dateRange.to || siteConfigs.length === 0) {
+        setSiteReports([]);
+        return;
+      }
+
+      setLoading(true);
       const startDate = format(dateRange.from, "yyyy-MM-dd");
       const endDate = format(dateRange.to, "yyyy-MM-dd");
-      fetchData(startDate, endDate);
-    }
-  }, [dateRange]);
+
+      try {
+        const reports = await Promise.all(
+          siteConfigs.map(async (site) => {
+            try {
+              const response = await fetch("/api/ga4/earnings-report", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  username,
+                  propertyId: site.propertyId,
+                  startDate,
+                  endDate,
+                }),
+              });
+
+              if (!response.ok) {
+                const payload = await response.json();
+                throw new Error(payload?.error || "Failed to fetch report");
+              }
+
+              const data = (await response.json()) as RevenueData[];
+              return { site, data };
+            } catch (error) {
+              toast.error(`Error loading report for ${site.domain}: ${error}`);
+              console.error(`Failed to load report for ${site.domain}:`, error);
+              return {
+                site,
+                data: [],
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : "Unable to fetch revenue data.",
+              };
+            }
+          }),
+        );
+
+        setSiteReports(reports);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, [dateRange, siteConfigs, username]);
 
   const handlePresetChange = (value: string) => {
     setTimeRange(value);
@@ -131,7 +153,7 @@ export default function RevenueReport() {
         <div className="grid flex-1 gap-1">
           <CardTitle>User Earnings</CardTitle>
           <CardDescription>
-            View earnings over time with customizable date range
+            View earnings over time for each site you have access to.
           </CardDescription>
         </div>
         <div className="flex items-center gap-2">
@@ -184,93 +206,27 @@ export default function RevenueReport() {
           </Popover>
         </div>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <p>Loading...</p>
+
+      <CardContent className="space-y-4 px-2 pt-4 sm:px-6 sm:pt-6">
+        {siteConfigs.length === 0 ? (
+          <div className="flex items-center justify-center h-64 text-muted-foreground">
+            No site configuration found.
           </div>
         ) : (
-          <ChartContainer
-            config={chartConfig}
-            className="aspect-auto h-64 w-full"
-          >
-            <AreaChart data={data}>
-              <defs>
-                <linearGradient
-                  id="fillIMPRESSIONS"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor="var(--color-impressions)"
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="var(--color-impressions)"
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-                <linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor="var(--color-totalRevenue)"
-                    stopOpacity={0.8}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor="var(--color-totalRevenue)"
-                    stopOpacity={0.1}
-                  />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                minTickGap={32}
-                tickFormatter={(value) => {
-                  const date = new Date(value);
-                  return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  });
-                }}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={
-                  <ChartTooltipContent
-                    labelFormatter={(value) => {
-                      return new Date(value).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      });
-                    }}
-                    indicator="dot"
-                  />
+          <div className="grid gap-4">
+            {siteReports.map(({ site, data, error }) => (
+              <SiteRevenueChart
+                key={site.domain}
+                siteName={site.domain}
+                data={data}
+                loading={loading}
+                description={
+                  error ??
+                  `Revenue data for ${site.domain} from ${format(dateRange.from!, "LLL dd, y")} to ${format(dateRange.to!, "LLL dd, y")}.`
                 }
               />
-              <Area
-                dataKey="impressions"
-                type="natural"
-                fill="url(#fillIMPRESSIONS)"
-                stroke="var(--color-impressions)"
-              />
-              <Area
-                dataKey="totalRevenue"
-                type="natural"
-                fill="url(#fillRevenue)"
-                stroke="var(--color-totalRevenue)"
-              />
-              <ChartLegend content={<ChartLegendContent />} />
-            </AreaChart>
-          </ChartContainer>
+            ))}
+          </div>
         )}
       </CardContent>
     </Card>

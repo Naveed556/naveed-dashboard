@@ -13,6 +13,8 @@ import { paymentColumns } from "./payment-columns";
 import { Payment, Sites } from "@/lib/types";
 import { Globe } from "lucide-react";
 import { getPaymentsForUser, getSitesAction } from "@/lib/server-actions";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Earnings {
   month: string;
@@ -92,7 +94,7 @@ export function PaymentManagement({
 
         setPayments(mergedPayments);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        toast.error(`Error fetching data: ${error}`);
       } finally {
         setIsLoading(false);
       }
@@ -206,7 +208,19 @@ export function PaymentManagement({
                   {/* Site title + description */}
                   <div>
                     <CardTitle className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-muted-foreground" />
+                      {/* <Globe className="h-4 w-4 text-muted-foreground" /> */}
+                      <Avatar className="h-4 w-4 rounded-lg">
+                        <AvatarImage
+                          src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(site)}&sz=64`}
+                          alt={site}
+                        />
+                        <AvatarFallback className="rounded-lg">
+                          {site
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")}
+                        </AvatarFallback>
+                      </Avatar>
                       {site}
                     </CardTitle>
                     <CardDescription>
