@@ -28,6 +28,13 @@ export async function getSitesAction() {
   return allSites();
 }
 
+export async function getCurrentUserSession() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  return session;
+}
+
 export async function getUser(userId: string) {
   const user = await auth.api.getUser({
     query: {

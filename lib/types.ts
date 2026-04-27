@@ -17,7 +17,7 @@ export interface Payment {
     year: number;
     website: string;
     userEarnings: number;
-    adminProfit: number;
+    adminProfit?: number;
     status: "Pending" | "Paid";
     paymentDate: string | null;
 }

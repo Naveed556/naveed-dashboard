@@ -40,7 +40,7 @@ export function UserSidebar({ user, sites }: UserSidebarProps) {
     },
     {
       title: "UTM Tracking",
-      url: "/dashboard/utm-tracking",
+      url: "/dashboard/utm-tracking-links",
       icon: <ExternalLinkIcon className="h-4 w-4" />,
     },
     {
