@@ -38,11 +38,6 @@ export function UserSidebar({ user, sites }: UserSidebarProps) {
       url: "/dashboard",
       icon: <HomeIcon className="h-4 w-4" />,
     },
-    // {
-    //   title: "UTM Tracking",
-    //   url: "/dashboard/utm-tracking-links",
-    //   icon: <ExternalLinkIcon className="h-4 w-4" />,
-    // },
     {
       title: "Earnings",
       url: "/dashboard/earnings",
@@ -52,6 +47,15 @@ export function UserSidebar({ user, sites }: UserSidebarProps) {
       title: "Payments",
       url: "/dashboard/payments",
       icon: <BarChart3Icon className="h-4 w-4" />,
+    },
+    {
+      title: "UTM Tracking",
+      url: "#",
+      icon: <ExternalLinkIcon className="h-4 w-4" />,
+      items: sites.map((site) => ({
+        title: site.domain,
+        url: `/dashboard/utm-tracking-links?site=${site.domain}`,
+      })),
     },
   ];
 
@@ -70,7 +74,6 @@ export function UserSidebar({ user, sites }: UserSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navItems} />
-        <NavSites sites={sites} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser
