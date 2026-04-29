@@ -49,6 +49,14 @@ export function SiteRevenueChart({
   description,
 }: SiteRevenueChartProps) {
   const hasData = data.length > 0;
+  const totals = data.reduce(
+    (acc, curr) => {
+      acc.impressions += curr.impressions;
+      acc.totalRevenue += curr.totalRevenue;
+      return acc;
+    },
+    { impressions: 0, totalRevenue: 0 },
+  );
 
   return (
     <Card className="min-h-90">
@@ -59,6 +67,20 @@ export function SiteRevenueChart({
             {description ? (
               <CardDescription>{description}</CardDescription>
             ) : null}
+          </div>
+          <div className="mt-4 flex items-center gap-2">
+            <div className="border rounded-md p-3 hover:bg-muted transition-colors">
+              <p className="text-sm text-muted-foreground">Total Impressions</p>
+              <p className="text-lg font-medium">
+                {totals.impressions.toLocaleString()}
+              </p>
+            </div>
+            <div className="border rounded-md p-3 hover:bg-muted transition-colors">
+              <p className="text-sm text-muted-foreground">Total Revenue</p>
+              <p className="text-lg font-medium">
+                ${totals.totalRevenue.toFixed(2)}
+              </p>
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -75,7 +97,7 @@ export function SiteRevenueChart({
         ) : (
           <ChartContainer
             config={chartConfig}
-            className="aspect-auto h-72 w-full"
+            className="aspect-auto h-80 w-full"
           >
             <AreaChart data={data}>
               <defs>
