@@ -14,9 +14,9 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { LayoutDashboardIcon, UsersIcon, Zap } from "lucide-react";
+import { GlobeIcon, LayoutDashboardIcon, UsersIcon, Zap } from "lucide-react";
 import Link from "next/link";
-import { allSites } from "@/lib/utils";
+import { getSitesAction } from "@/lib/server-actions";
 
 export async function AdminSidebar({
   ...props
@@ -25,7 +25,7 @@ export async function AdminSidebar({
     headers: await headers(),
   });
 
-  const sites = allSites();
+  const sites = await getSitesAction();
 
   const data = {
     user: {
@@ -44,6 +44,11 @@ export async function AdminSidebar({
         title: "User Management",
         url: "/admin/user-management",
         icon: <UsersIcon />,
+      },
+      {
+        title: "Sites",
+        url: "/admin/sites",
+        icon: <GlobeIcon />,
       },
     ],
     sites,

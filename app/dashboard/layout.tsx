@@ -9,7 +9,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toogle";
-import { allSites } from "@/lib/utils";
+import { getSitesAction } from "@/lib/server-actions";
 
 export default async function UserDashboardLayout({
   children,
@@ -30,7 +30,7 @@ export default async function UserDashboardLayout({
   }
 
   // Get all sites and filter by user's accessible sites
-  const allAvailableSites = allSites();
+  const allAvailableSites = await getSitesAction();
   const userAccessibleSites = (session.user as any).accessibleSites || [];
   const userSites = allAvailableSites.filter((site) =>
     userAccessibleSites.includes(site.domain),

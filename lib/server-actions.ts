@@ -3,9 +3,8 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { allSites } from "@/lib/utils";
 import { MongoClient } from 'mongodb';
-import { User } from "./types";
+import { Sites, User } from "./types";
 
 const mongoClient = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
 const db = mongoClient.db('new-dashboard');
@@ -24,8 +23,50 @@ type SerializedPayment = Omit<DbPayment, 'updatedAt'> & {
   updatedAt: string;
 };
 
+export async function extractDomain(input: string): Promise<string | null> {
+  if (!input?.trim()) return null;
+  try {
+    const raw = input.includes("://") ? input : `https://${input}`;
+    const url = new URL(raw);
+    const host = url.hostname.replace(/^www\./, "");
+    if (host.includes(".") && host.split(".").every(Boolean)) return host;
+    return null;
+  } catch {
+    const cleaned = input.trim().replace(/^www\./, "");
+    if (cleaned.includes(".") && cleaned.split(".").every(Boolean))
+      return cleaned;
+    return null;
+  }
+}
+
+export async function addSiteAction(url: string, propertyId: string) {
+  const domain = await extractDomain(url);
+  if (!domain) throw new Error("Invalid URL");
+
+  await mongoClient.connect();
+  await db.collection('sites').insertOne({
+    domain,
+    url,
+    propertyId,
+    favicon: `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain as string)}&sz=64`,
+    createdAt: new Date(),
+  });
+  await mongoClient.close();
+  revalidatePath('/admin');
+}
+
+export async function deleteSiteAction(domain: string) {
+  await mongoClient.connect();
+  await db.collection('sites').deleteOne({ domain });
+  await mongoClient.close();
+  revalidatePath('/admin');
+}
+
 export async function getSitesAction() {
-  return allSites();
+  await mongoClient.connect();
+  const sites = await db.collection('sites').find({}).toArray();
+  await mongoClient.close();
+  return sites.map(({ _id, ...site }) => site) as Sites[];
 }
 
 export async function getCurrentUserSession() {
