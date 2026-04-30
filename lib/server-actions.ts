@@ -3,11 +3,11 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { MongoClient } from 'mongodb';
 import { Sites, User } from "./types";
+import clientPromise from "./mongodb";
 
-const mongoClient = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
-const db = mongoClient.db('new-dashboard');
+const client = await clientPromise;
+const db = client.db();
 
 interface DbPayment {
   userId: string;
@@ -43,7 +43,6 @@ export async function addSiteAction(url: string, propertyId: string) {
   const domain = await extractDomain(url);
   if (!domain) throw new Error("Invalid URL");
 
-  await mongoClient.connect();
   await db.collection('sites').insertOne({
     domain,
     url,
@@ -51,21 +50,16 @@ export async function addSiteAction(url: string, propertyId: string) {
     favicon: `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain as string)}&sz=64`,
     createdAt: new Date(),
   });
-  await mongoClient.close();
   revalidatePath('/admin');
 }
 
 export async function deleteSiteAction(domain: string) {
-  await mongoClient.connect();
   await db.collection('sites').deleteOne({ domain });
-  await mongoClient.close();
   revalidatePath('/admin');
 }
 
 export async function getSitesAction() {
-  await mongoClient.connect();
   const sites = await db.collection('sites').find({}).toArray();
-  await mongoClient.close();
   return sites.map(({ _id, ...site }) => site) as Sites[];
 }
 
@@ -219,9 +213,7 @@ export async function deleteUserAction(userId: string) {
 }
 
 export async function getPaymentsForUser(userId: string): Promise<SerializedPayment[]> {
-  await mongoClient.connect();
   const payments = await db.collection<DbPayment>('payments').find({ userId }).toArray();
-  await mongoClient.close();
 
   return payments.map(({ _id, ...payment }) => ({
     ...payment,
@@ -231,7 +223,6 @@ export async function getPaymentsForUser(userId: string): Promise<SerializedPaym
 }
 
 export async function updatePaymentStatus(userId: string, month: number, year: number, website: string, status: "Paid" | "Pending", paymentDate?: string) {
-  await mongoClient.connect();
   const updateData: Partial<DbPayment> = { status, updatedAt: new Date() };
   if (status === 'Paid') {
     updateData.paymentDate = paymentDate || new Date().toISOString();
@@ -243,6 +234,5 @@ export async function updatePaymentStatus(userId: string, month: number, year: n
     { $set: updateData },
     { upsert: true }
   );
-  await mongoClient.close();
   revalidatePath(`/admin/${userId}/payment-management`);
 }

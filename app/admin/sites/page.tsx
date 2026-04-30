@@ -17,16 +17,24 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Trash2Icon, PlusIcon, CopyIcon, CheckCheckIcon } from "lucide-react";
-import type { Sites } from "@/lib/types";
+import {
+  Trash2Icon,
+  PlusIcon,
+  CopyIcon,
+  CheckCheckIcon,
+  Loader2Icon,
+} from "lucide-react";
+import type { Sites, User } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Client_Email } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
 
 export default function SitesPage() {
   const [sites, setSites] = useState<Sites[]>([]);
   const [url, setUrl] = useState("");
   const [propertyId, setPropertyId] = useState("");
   const [adding, setAdding] = useState(false);
+  const [deletingDomain, setDeletingDomain] = useState<string | null>(null);
   const [emailCopied, setEmailCopied] = useState(false);
 
   useEffect(() => {
@@ -51,9 +59,37 @@ export default function SitesPage() {
     }
   };
 
-  const handleDelete = async (domain: string) => {
+  const handleDelete = async (domain: string): Promise<void> => {
+    setDeletingDomain(domain);
     await deleteSiteAction(domain);
+    const { data, error } = await authClient.admin.listUsers({
+      query: {
+        filterField: "accessibleSites",
+        filterOperator: "contains",
+        filterValue: domain,
+      },
+    });
+    if (error) {
+      toast.error(`Failed to fetch users: ${error.message}`);
+      return;
+    }
+    const usersWithAccess = data.users as User[];
+    for (const user of usersWithAccess) {
+      const updatedSites = user.accessibleSites.filter(
+        (site) => site !== domain,
+      );
+      const { data, error } = await authClient.admin.updateUser({
+        userId: user.id,
+        data: { accessibleSites: updatedSites },
+      });
+      if (error) {
+        toast.error(`Failed to update user ${user.email}: ${error.message}`);
+      } else {
+        toast.success(`Updated user ${user.email} access`);
+      }
+    }
     setSites(await getSitesAction());
+    setDeletingDomain(null);
     toast.success("Site removed");
   };
 
@@ -153,8 +189,13 @@ export default function SitesPage() {
                 variant="destructive"
                 size="icon-sm"
                 onClick={() => handleDelete(site.domain)}
+                disabled={deletingDomain === site.domain}
               >
-                <Trash2Icon />
+                {deletingDomain === site.domain ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <Trash2Icon />
+                )}
               </Button>
             </div>
           ))}
