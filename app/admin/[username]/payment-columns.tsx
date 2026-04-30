@@ -34,7 +34,7 @@ export const paymentColumns = (
     header: "Admin Profit",
     cell: ({ row }) => {
       const payment = row.original;
-      return `$${payment.adminProfit.toFixed(2)}`;
+      return `$${payment.adminProfit!.toFixed(2)}`;
     },
   },
   {
