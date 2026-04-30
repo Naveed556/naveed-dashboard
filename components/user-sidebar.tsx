@@ -1,7 +1,6 @@
 "use client";
 
 import { NavMain } from "@/components/nav-main";
-import { NavSites } from "@/components/nav-sites";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,

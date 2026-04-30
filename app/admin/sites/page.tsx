@@ -8,17 +8,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel, FieldGroup } from "@/components/ui/field";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Trash2Icon, PlusIcon } from "lucide-react";
+import { Trash2Icon, PlusIcon, CopyIcon, CheckCheckIcon } from "lucide-react";
 import type { Sites } from "@/lib/types";
+import { Badge } from "@/components/ui/badge";
+import { Client_Email } from "@/lib/utils";
 
 export default function SitesPage() {
   const [sites, setSites] = useState<Sites[]>([]);
   const [url, setUrl] = useState("");
   const [propertyId, setPropertyId] = useState("");
   const [adding, setAdding] = useState(false);
+  const [emailCopied, setEmailCopied] = useState(false);
 
   useEffect(() => {
     getSitesAction().then(setSites);
@@ -48,6 +57,18 @@ export default function SitesPage() {
     toast.success("Site removed");
   };
 
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(Client_Email);
+    // check if the email was copied successfully then make the button text "Copied!" for 2 seconds
+    if (navigator.clipboard) {
+      setEmailCopied(true);
+      toast.success("Email copied to clipboard");
+      setTimeout(() => setEmailCopied(false), 2000);
+    } else {
+      toast.error("Failed to copy email");
+    }
+  };
+
   return (
     <div className="container mx-auto p-5 space-y-6">
       <h1 className="text-2xl font-bold">Manage Sites</h1>
@@ -55,6 +76,25 @@ export default function SitesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Add New Site</CardTitle>
+          <CardDescription>
+            In order to get data from Google analytics,
+            <br />
+            Visit Google Analytics &gt; Admin &gt; Property Access Management
+            &gt; Add Users &gt; Add the service email below with atleast
+            "Viewer" role
+            <Badge variant={"outline"} className="ml-2 py-4">
+              {Client_Email}{" "}
+              <Button
+                variant={"outline"}
+                size={"icon-xs"}
+                onClick={() => handleCopyEmail()}
+                disabled={emailCopied}
+              >
+                {" "}
+                {emailCopied ? <CheckCheckIcon /> : <CopyIcon />}
+              </Button>
+            </Badge>
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAdd}>

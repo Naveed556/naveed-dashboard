@@ -81,6 +81,9 @@ export default function PaymentsPage() {
           setPayments([]);
           return;
         }
+        const subtractCommission = (value: number) => {
+          return value - (value * userCommission) / 100;
+        };
 
         const dbPayments = await getPaymentsForUser(userId);
 
@@ -94,6 +97,9 @@ export default function PaymentsPage() {
             headers: { "Content-Type": "application/json" },
           });
           const earnings: Earnings[] = await res.json();
+          earnings.forEach((e) => {
+            e.revenue = subtractCommission(e.revenue);
+          });
           return { site, earnings };
         });
 

@@ -2,7 +2,7 @@ import { PlatformExpense } from "@/lib/constants";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { NextResponse, NextRequest } from "next/server";
 
-const client_email = process.env.CLIENT_EMAIL!;
+const client_email = process.env.NEXT_PUBLIC_CLIENT_EMAIL!;
 const private_key = process.env.PRIVATE_KEY!.replace(/\\n/g, '\n'); // Correctly format the private key
 // Initialize the Google Analytics Data API client
 const analyticsDataClient = new BetaAnalyticsDataClient({
@@ -11,6 +11,10 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
         private_key
     },
 });
+
+const subtractPlatformExpense = (value: number) => {
+    return value - (value * PlatformExpense);
+}
 
 export async function POST(request: NextRequest) {
     try {
@@ -87,7 +91,7 @@ export async function POST(request: NextRequest) {
                 month: getMonthName(month),
                 monthNumber: month,
                 year,
-                revenue: Number((totalRevenue - (totalRevenue * PlatformExpense)).toFixed(2)),
+                revenue: Number(subtractPlatformExpense(totalRevenue)).toFixed(2),
             };
         });
 

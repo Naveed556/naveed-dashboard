@@ -51,6 +51,7 @@ export default function EarningsPage() {
   const [siteConfigs, setSiteConfigs] = useState<Sites[]>([]);
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState<string>("");
+  const [commission, setCommission] = useState<number>(0);
   const [accessibleSites, setAccessibleSites] = useState<string[]>([]);
 
   // Get current user session
@@ -60,6 +61,7 @@ export default function EarningsPage() {
         const session = await getCurrentUserSession();
         if (session?.user) {
           setUsername((session.user as any).username || "");
+          setCommission((session.user as any).commission || 0);
           const sites =
             (session.user as any).accessibleSites ||
             (session.user as any).data?.accessibleSites ||
@@ -134,8 +136,16 @@ export default function EarningsPage() {
                 const payload = await response.json();
                 throw new Error(payload?.error || "Failed to fetch report");
               }
+              const subtractCommission = (value: number) => {
+                return value - (value * commission) / 100;
+              };
 
               const data = (await response.json()) as RevenueData[];
+              data.forEach((d) => {
+                d.impressions = subtractCommission(d.impressions);
+                d.totalRevenue = subtractCommission(d.totalRevenue);
+                d.rpm = subtractCommission(d.rpm);
+              });
               return { site, data };
             } catch (error) {
               toast.error(`Error loading report for ${site.domain}: ${error}`);

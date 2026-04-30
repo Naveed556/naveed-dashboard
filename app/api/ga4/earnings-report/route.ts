@@ -7,10 +7,14 @@ import { NextRequest, NextResponse } from "next/server";
 // Initialize the client
 const analyticsDataClient = new BetaAnalyticsDataClient({
     credentials: {
-        client_email: process.env.CLIENT_EMAIL,
+        client_email: process.env.NEXT_PUBLIC_CLIENT_EMAIL,
         private_key: process.env.PRIVATE_KEY!.replace(/\\n/g, '\n'), // Correctly format the private key
     },
 });
+
+const subtractPlatformExpense = (value: number) => {
+    return value - (value * PlatformExpense);
+}
 
 export async function POST(request: NextRequest) {
     try {
@@ -76,8 +80,8 @@ export async function POST(request: NextRequest) {
 
         // Map the aggregated data to the required format
         const data = Array.from(dateMap, ([date, { totalUsers, totalRevenue }]) => {
-            const totalUsersAfterFee = Math.floor(totalUsers - (totalUsers * PlatformExpense));
-            const totalRevenueAfterFee = totalRevenue - (totalRevenue * PlatformExpense);
+            const totalUsersAfterFee = Math.floor(subtractPlatformExpense(totalUsers));
+            const totalRevenueAfterFee = subtractPlatformExpense(totalRevenue);
             const avgRpm = totalUsers > 0 ? (totalRevenueAfterFee / totalUsersAfterFee) * 1000 : 0;
             return {
                 date: formatDate(date),
