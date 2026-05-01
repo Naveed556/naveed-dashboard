@@ -87,6 +87,7 @@ async function main() {
                 password,
                 role: "admin",
                 data: {
+                    emailVerified: true,
                     username: usernameNormalized,
                     gender: "male",
                     image: "/male_profile.png",

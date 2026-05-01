@@ -5,11 +5,10 @@ import { admin } from "better-auth/plugins";
 import { username } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { dash } from "@better-auth/infra";
+import clientPromise from "./mongodb";
+import { sendEmail } from "./email";
 
-const client = new MongoClient(
-  (process.env.MONGODB_URI as string) ||
-  "mongodb://localhost:27017/new-dashboard",
-);
+const client = await clientPromise;
 const db = client.db();
 
 export const auth = betterAuth({
@@ -35,10 +34,25 @@ export const auth = betterAuth({
   },
   database: mongodbAdapter(
     db,
-    // {client,}
+    { client, }
   ),
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true, // Block sign-in if not verified
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      void sendEmail({
+        to: user.email,
+        subject: "Verify your email",
+        html: `
+        <h2>Email Verification</h2>
+        <p>Click below to verify:</p>
+        <a href="${url}">${url}</a>
+      `,
+      });
+    },
+    sendOnSignIn: true, // Resend verification email on sign-in attempt
   },
   plugins: [
     admin(),

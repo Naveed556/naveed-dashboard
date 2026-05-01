@@ -53,6 +53,7 @@ import {
 } from "@/lib/server-actions";
 import type { Sites, User } from "@/lib/types";
 import {
+  BadgeCheckIcon,
   BanknoteIcon,
   Check,
   ChevronsUpDown,
@@ -413,7 +414,12 @@ export default function UserStats({
             <div className="space-y-1">
               <h3 className="text-lg font-semibold">{user.name}</h3>
               <p className="text-sm text-muted-foreground">@{user.username}</p>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                {user.email}
+                {user.emailVerified && (
+                  <BadgeCheckIcon className="size-4 text-green-600" />
+                )}
+              </p>
               <div className="flex gap-2 flex-wrap">
                 {user.gender && (
                   <Badge variant="secondary">{user.gender}</Badge>

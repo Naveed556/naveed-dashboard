@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { BadgeCheckIcon } from "lucide-react";
 
 export default async function Page() {
   const session = await auth.api.getSession({
@@ -45,7 +46,12 @@ export default async function Page() {
             <div className="space-y-1">
               <div className="flex gap-2 flex-wrap">
                 Email:
-                <p className="text-sm text-muted-foreground">{user.email}</p>
+                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                  {user.email}
+                  {user.emailVerified && (
+                    <BadgeCheckIcon className="size-4 text-green-600" />
+                  )}
+                </p>
               </div>
               <div className="flex gap-2 flex-wrap">
                 Gender:

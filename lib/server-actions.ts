@@ -132,7 +132,21 @@ export async function createUserAction(
     throw new Error("Username already exists. Please choose a different username.");
   }
 
-  await auth.api.createUser({
+  const emailResponse = await auth.api.sendVerificationEmail({
+    body: {
+      email,
+      callbackURL: "/auth/login",
+    },
+    headers: {
+      "x-better-auth-internal-request": "true",
+    },
+  });
+
+  if (!emailResponse?.status) {
+    throw new Error("Failed to send verification email. Please check the email address and try again.");
+  }
+
+  const newUser = await auth.api.createUser({
     body: {
       name: fullname
         .split(" ")
@@ -151,6 +165,9 @@ export async function createUserAction(
     },
     headers: await headers(),
   });
+  if (!newUser) {
+    throw new Error("Failed to create user. Please try again.");
+  }
   revalidatePath("/admin/user-management");
 }
 
