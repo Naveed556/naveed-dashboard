@@ -20,6 +20,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { Email } from "@/lib/constants";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -77,8 +78,8 @@ export default function LoginPage() {
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                   <Link
-                    href="#"
-                    className="ml-auto text-sm underline-offset-4 hover:underline"
+                    href="/auth/forgot-password"
+                    className="ml-auto text-xs text-primary underline-offset-4 hover:underline"
                   >
                     Forgot your password?
                   </Link>
@@ -117,7 +118,10 @@ export default function LoginPage() {
                   )}
                 </Button>
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link href="#">Contact Us</Link>
+                  Don&apos;t have an account?{" "}
+                  <Link target="_blank" href={`mailto:${Email}`}>
+                    Contact Us
+                  </Link>
                 </FieldDescription>
               </Field>
             </FieldGroup>
@@ -126,7 +130,11 @@ export default function LoginPage() {
       </Card>
       <FieldDescription className="px-6 text-center">
         We are no longer offering Self Registration. If you would like an
-        account, please email us at: <Link href="#">Email</Link> <br />
+        account, please email us at:{" "}
+        <Link target="_blank" href={`mailto:${Email}`}>
+          {Email}
+        </Link>{" "}
+        <br />
         By clicking continue, you agree to our{" "}
         <Link href="/privacy-policy">Privacy Policy</Link>.
       </FieldDescription>

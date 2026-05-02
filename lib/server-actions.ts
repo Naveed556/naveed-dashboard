@@ -253,3 +253,38 @@ export async function updatePaymentStatus(userId: string, month: number, year: n
   );
   revalidatePath(`/admin/${userId}/payment-management`);
 }
+
+export async function forgotPasswordAction(email: string) {
+  if (!email || typeof email !== "string" || !email.includes("@")) {
+    throw new Error("Please provide a valid email address.");
+  }
+  const emailResponse = await auth.api.requestPasswordReset({
+    body: {
+      email,
+      redirectTo: "/auth/reset-password",
+    },
+  });
+
+  if (!emailResponse?.status) {
+    throw new Error("Failed to send password reset email. Please check the email address and try again.");
+  }
+}
+
+export async function resetpasswordAction(token: string, newPassword: string, confirmPassword: string) {
+  if (!token) {
+    throw new Error("Invalid Token! Please try again.")
+  }
+
+  if (newPassword != confirmPassword) {
+    throw new Error("Passwords do not match. Please make sure both password fields are the same.")
+  }
+  const data = await auth.api.resetPassword({
+    body: {
+      newPassword,
+      token,
+    },
+  });
+  if (!data?.status) {
+    throw new Error("Unable to Reset Password please try again.")
+  }
+}
