@@ -1,5 +1,4 @@
 import { betterAuth } from "better-auth";
-import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin } from "better-auth/plugins";
 import { username } from "better-auth/plugins";
@@ -39,7 +38,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true, // Block sign-in if not verified
-    sendResetPassword: async ({ user, url, token }, request) => {
+    sendResetPassword: async ({ user, url }) => {
       void sendEmail({
         to: user.email,
         subject: "Reset your password",
@@ -50,13 +49,13 @@ export const auth = betterAuth({
        `,
       });
     },
-    onPasswordReset: async ({ user }, request) => {
+    onPasswordReset: async ({ user }) => {
       // your logic here
       console.log(`Password for user ${user.email} has been reset.`);
     },
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }, request) => {
+    sendVerificationEmail: async ({ user, url }) => {
       void sendEmail({
         to: user.email,
         subject: "Verify your email",

@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -21,7 +20,6 @@ import {
   ChevronsUpDownIcon,
   LogOutIcon,
   Loader2Icon,
-  SettingsIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -114,13 +112,6 @@ export function NavUser({
                   </div>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <SettingsIcon />
-                  Settings
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"

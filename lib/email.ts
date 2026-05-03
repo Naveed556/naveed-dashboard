@@ -20,7 +20,7 @@ export const sendEmail = async ({
     html: string;
 }) => {
     await transporter.sendMail({
-        from: `"Dashboard Authentication" <${process.env.EMAIL_USER}>`,
+        from: `"Dashboard Security" <${process.env.EMAIL_USER}>`,
         to,
         subject,
         html,

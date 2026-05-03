@@ -471,7 +471,7 @@ export default function Home() {
                 idx < FEATURES.length - 1 && "border-b border-border",
               )}
             >
-              <div className="mb-4 h-9 w-9 rounded-lg bg-foreground text-primary flex items-center justify-center transition-transform group-hover:scale-110">
+              <div className="mb-4 h-9 w-9 flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 {f.icon}
               </div>
               <h3 className="text-sm font-medium text-foreground mb-1.5">
@@ -620,6 +620,17 @@ export default function Home() {
           <span className="text-xs text-muted-foreground ml-1">
             &copy; Copyright {new Date().getFullYear()}. All Rights Reserved
           </span>
+        </div>
+
+        <div className="text-xs text-muted-foreground">
+          Made with ❤️ by{" "}
+          <Link
+            className="hover:underline hover:text-foreground"
+            href={"https://nawabwebfolio.vercel.app"}
+            target="_blank"
+          >
+            Moazzam Nawab
+          </Link>
         </div>
 
         <nav className="flex items-center gap-6" aria-label="Footer navigation">

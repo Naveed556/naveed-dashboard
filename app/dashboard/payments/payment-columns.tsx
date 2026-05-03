@@ -3,10 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { BadgeCheckIcon, Clock10Icon } from "lucide-react";
 import { Payment } from "@/lib/types";
 
-export const paymentColumns = (
-  userId: string,
-  canMarkPaid: boolean,
-): ColumnDef<Payment>[] => [
+export const paymentColumns = (): ColumnDef<Payment>[] => [
   {
     accessorKey: "month",
     header: "Payment Month",

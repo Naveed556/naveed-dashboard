@@ -32,6 +32,15 @@ interface WPPost {
   slug: string;
 }
 
+const createRandomId = (length: number) => {
+  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const values = new Uint32Array(length);
+  crypto.getRandomValues(values);
+  return Array.from(values, (value) =>
+    characters.charAt(value % characters.length),
+  ).join("");
+};
+
 export default function UTMTrackingLinksPage() {
   const searchParams = useSearchParams();
   const siteDomain = searchParams.get("site");
@@ -51,16 +60,6 @@ export default function UTMTrackingLinksPage() {
       .replace(/&#(\d+);/g, (_, charCode) =>
         String.fromCharCode(Number(charCode)),
       );
-  };
-
-  const uniqueId = (length: number) => {
-    let result = "";
-    const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
   };
 
   const fetchAllPosts = async (
@@ -98,10 +97,9 @@ export default function UTMTrackingLinksPage() {
 
   useEffect(() => {
     if (!siteDomain) {
-      setCategories([]);
-      setSelectedCategory(null);
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loading reflects the request lifecycle started by this effect
     setLoading(true);
     fetch(
       `https://${siteDomain}/wp-json/wp/v2/categories?per_page=100&_fields=id,name`,
@@ -123,9 +121,9 @@ export default function UTMTrackingLinksPage() {
 
   useEffect(() => {
     if (!selectedCategory || !siteDomain) {
-      setPosts([]);
       return;
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loading reflects the request lifecycle started by this effect
     setLoading(true);
     fetchAllPosts(selectedCategory.id, siteDomain)
       .then((data) => {
@@ -137,12 +135,12 @@ export default function UTMTrackingLinksPage() {
         setPosts([]);
         setLoading(false);
       });
-  }, [selectedCategory, siteDomain]);
+  }, [selectedCategory, siteDomain, user?.username]);
 
   const generateUTMLink = (post: WPPost) => {
     const username = user?.username || "";
     const slug = post.slug;
-    const id = uniqueId(8);
+    const id = createRandomId(8);
     return `${post.link}?utm_campaign=${slug}_${username}&utm_medium=link&utm_source=link_${username}_${id}`;
   };
 
@@ -179,6 +177,7 @@ export default function UTMTrackingLinksPage() {
             <Select
               onValueChange={(value) => {
                 const cat = categories.find((c) => c.id === parseInt(value));
+                setPosts([]);
                 setSelectedCategory(cat || null);
               }}
             >
@@ -197,7 +196,7 @@ export default function UTMTrackingLinksPage() {
 
           {loading && <p>Loading...</p>}
 
-          {posts.length > 0 && (
+          {selectedCategory && posts.length > 0 && (
             <Card className="bg-transparent">
               <CardHeader className="pb-2">
                 <h2 className="text-xl font-semibold mb-2">

@@ -28,9 +28,9 @@ const Header = () => {
         className="flex items-center gap-2 group"
         aria-label="DailyEarn home"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-primary transition-transform group-hover:scale-105">
+        <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
           <Zap className="h-4 w-4" />
-        </span>
+        </div>
         <span className="font-semibold text-base tracking-tight">
           DailyEarn
         </span>
@@ -38,14 +38,6 @@ const Header = () => {
 
       <nav className="flex items-center gap-2" aria-label="Main navigation">
         <ModeToggle />
-        {/* <Button
-          variant="ghost"
-          size="sm"
-          asChild
-          className="hidden sm:inline-flex text-muted-foreground hover:text-foreground"
-        >
-          <Link href="/auth/login">Login</Link>
-        </Button> */}
         <Button
           size="sm"
           asChild

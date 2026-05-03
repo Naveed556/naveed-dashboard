@@ -102,7 +102,7 @@ export function PaymentManagement({
     };
 
     fetchData();
-  }, [userId, username, accessibleSites]);
+  }, [userId, username, accessibleSites, user.commission]);
 
   // Sites to show — prefer the prop so every accessible site gets a table,
   // even if it has no payments yet. Fall back to unique sites in payment data.

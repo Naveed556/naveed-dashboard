@@ -102,7 +102,7 @@ export async function getUsersByRoleAndSite(website: string) {
   // Filter by accessible sites - they can be on user or in user.data
   return users.filter(user => {
     // Check if accessibleSites is directly on the user object
-    const accessibleSites = (user as any)?.accessibleSites || (user as any)?.data?.accessibleSites;
+    const accessibleSites = (user as User)?.accessibleSites || [];
     return Array.isArray(accessibleSites) && accessibleSites.includes(website);
   });
 }
@@ -202,6 +202,8 @@ export async function updateUserAction(
   })) as User;
 
   revalidatePath(`/admin/${updatedUser?.username}?id=${userId}`);
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
   return updatedUser;
 }
 
@@ -286,5 +288,24 @@ export async function resetpasswordAction(token: string, newPassword: string, co
   });
   if (!data?.status) {
     throw new Error("Unable to Reset Password please try again.")
+  }
+}
+
+export async function updatePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
+  if (newPassword != confirmPassword) {
+    throw new Error("Passwords do not match. Please make sure both password fields are the same.");
+  }
+
+  const data = await auth.api.changePassword({
+    body: {
+      newPassword,
+      currentPassword,
+      revokeOtherSessions: true,
+    },
+    headers: await headers(),
+  });
+
+  if (!data?.user) {
+    throw new Error("Unable to chnage Password");
   }
 }

@@ -119,21 +119,13 @@ export default function UserStats({
   useEffect(() => {
     if (!isEditing || !user) return;
 
-    const accessibleSitesFromUser =
-      (user as any).accessibleSites ??
-      (user as any).data?.accessibleSites ??
-      [];
+    const accessibleSitesFromUser = user.accessibleSites ?? [];
 
     setEditForm({
       name: user.name ?? "",
       email: user.email ?? "",
-      gender: (user as any).gender ?? (user as any).data?.gender ?? "male",
-      commission:
-        typeof user.commission === "number"
-          ? user.commission
-          : typeof (user as any).data?.commission === "number"
-            ? (user as any).data?.commission
-            : 0,
+      gender: user.gender ?? "male",
+      commission:user.commission || 0,
       accessibleSites: Array.isArray(accessibleSitesFromUser)
         ? accessibleSitesFromUser
         : [],
@@ -158,23 +150,16 @@ export default function UserStats({
           setUser(typedUser);
 
           const accessibleSitesFromUser =
-            (typedUser as any).accessibleSites ??
-            (typedUser as any).data?.accessibleSites ??
+            typedUser.accessibleSites ??
             [];
 
           setEditForm({
             name: typedUser.name ?? "",
             email: typedUser.email ?? "",
             gender:
-              (typedUser as any).gender ??
-              (typedUser as any).data?.gender ??
+              typedUser.gender ||
               "male",
-            commission:
-              typeof typedUser.commission === "number"
-                ? typedUser.commission
-                : typeof (typedUser as any).data?.commission === "number"
-                  ? (typedUser as any).data?.commission
-                  : 0,
+            commission: typedUser.commission || 0,
             accessibleSites: Array.isArray(accessibleSitesFromUser)
               ? accessibleSitesFromUser
               : [],
@@ -226,7 +211,7 @@ export default function UserStats({
 
   // accessibleSites may live directly on the user or nested under user.data
   const accessibleSites: string[] =
-    (user as any).accessibleSites ?? (user as any).data?.accessibleSites ?? [];
+    user.accessibleSites ?? [];
 
   return (
     <div className="container mx-auto p-6 space-y-6">

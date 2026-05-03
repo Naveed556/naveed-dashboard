@@ -265,12 +265,12 @@ export default function PrivacyPolicy() {
                   Provide and operate our Services and related services in
                   connection with our Services
                 </li>
-                <li>Verify our User's identity</li>
+                <li>Verify our Users&apos; identity</li>
                 <li>
                   Deliver and enhance the Services, provide technical assistance
                   and support
                 </li>
-                <li>Provide updates regarding the Company's developments</li>
+                <li>Provide updates regarding the Company&apos;s developments</li>
                 <li>
                   Create cumulative statistical data and other non-personal
                   information for improving Services
@@ -562,7 +562,7 @@ export default function PrivacyPolicy() {
                 >
                   contactus
                 </Link>{" "}
-                or by pressing the "Unsubscribe" button in the email.
+                or by pressing the &quot;Unsubscribe&quot; button in the email.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Please note that we may contact you with important information
@@ -589,8 +589,8 @@ export default function PrivacyPolicy() {
                 We will notify you regarding substantial changes by changing the
                 link to the Privacy Policy and/or by sending you an email. Such
                 substantial changes will take effect seven (7) days after
-                notice. All other changes are effective as of the stated "Last
-                Revised" date, and your continued use of the Services
+                notice. All other changes are effective as of the stated &quot;Last
+                Revised&quot; date, and your continued use of the Services
                 constitutes acceptance of these changes.
               </p>
             </section>

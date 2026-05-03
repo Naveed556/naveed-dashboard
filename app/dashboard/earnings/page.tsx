@@ -60,11 +60,10 @@ export default function EarningsPage() {
       try {
         const session = await getCurrentUserSession();
         if (session?.user) {
-          setUsername((session.user as any).username || "");
-          setCommission((session.user as any).commission || 0);
+          setUsername(session.user.username || "");
+          setCommission(session.user.commission || 0);
           const sites =
-            (session.user as any).accessibleSites ||
-            (session.user as any).data?.accessibleSites ||
+            session.user.accessibleSites ||
             [];
           setAccessibleSites(sites);
         }
@@ -169,7 +168,7 @@ export default function EarningsPage() {
     };
 
     fetchReports();
-  }, [dateRange, siteConfigs, username]);
+  }, [dateRange, siteConfigs, username, commission]);
 
   const handlePresetChange = (value: string) => {
     setTimeRange(value);

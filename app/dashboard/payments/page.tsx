@@ -41,15 +41,13 @@ export default function PaymentsPage() {
         const session = await getCurrentUserSession();
         if (session?.user) {
           setUserId(session.user.id);
-          setUsername((session.user as any).username || "");
+          setUsername(session.user.username || "");
           const sites =
-            (session.user as any).accessibleSites ||
-            (session.user as any).data?.accessibleSites ||
+            session.user.accessibleSites ||
             [];
           setAccessibleSites(sites);
           setUserCommission(
-            (session.user as any).commission ||
-              (session.user as any).data?.commission ||
+            session.user.commission ||
               0,
           );
         }
@@ -293,7 +291,7 @@ export default function PaymentsPage() {
                   </p>
                 ) : (
                   <DataTable
-                    columns={paymentColumns(userId, false)}
+                    columns={paymentColumns()}
                     data={sitePayments}
                   />
                 )}

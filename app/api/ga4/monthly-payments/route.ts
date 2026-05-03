@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
                 month: getMonthName(month),
                 monthNumber: month,
                 year,
-                revenue: Number(subtractPlatformExpense(totalRevenue)).toFixed(2),
+                revenue: Number(subtractPlatformExpense(totalRevenue).toFixed(2)),
             };
         });
 

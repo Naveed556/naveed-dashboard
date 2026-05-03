@@ -31,7 +31,7 @@ export default async function UserDashboardLayout({
 
   // Get all sites and filter by user's accessible sites
   const allAvailableSites = await getSitesAction();
-  const userAccessibleSites = (session.user as any).accessibleSites || [];
+  const userAccessibleSites = session.user.accessibleSites || [];
   const userSites = allAvailableSites.filter((site) =>
     userAccessibleSites.includes(site.domain),
   );
@@ -41,7 +41,7 @@ export default async function UserDashboardLayout({
     name: session.user.name || undefined,
     email: session.user.email,
     image: session.user.image || undefined,
-    accessibleSites: (session.user as any).accessibleSites || [],
+    accessibleSites: session.user.accessibleSites || [],
   };
 
   return (

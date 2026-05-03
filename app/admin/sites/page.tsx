@@ -78,7 +78,7 @@ export default function SitesPage() {
       const updatedSites = user.accessibleSites.filter(
         (site) => site !== domain,
       );
-      const { data, error } = await authClient.admin.updateUser({
+      const { error } = await authClient.admin.updateUser({
         userId: user.id,
         data: { accessibleSites: updatedSites },
       });
@@ -117,7 +117,7 @@ export default function SitesPage() {
             <br />
             Visit Google Analytics &gt; Admin &gt; Property Access Management
             &gt; Add Users &gt; Add the service email below with atleast
-            "Viewer" role
+            &quot;Viewer&quot; role
             <Badge variant={"outline"} className="ml-2 py-4">
               {Client_Email}{" "}
               <Button
