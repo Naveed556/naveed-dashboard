@@ -13,19 +13,26 @@ import { format } from "date-fns";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { BadgeCheckIcon } from "lucide-react";
+import { ProfileClient } from "@/components/profile-client";
+import { formatGenderLabel } from "@/lib/gender";
 
 export default async function Profile() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  const user = session?.user as User;
+  const user = session?.user as User | undefined;
+  if (!user) {
+    return null;
+  }
   const accessibleSites: string[] =
     user.accessibleSites ?? [];
   return (
     <div className="p-4">
       <Card>
+          <CardAction className="ml-auto mr-4">
+            <ProfileClient user={user} />
+          </CardAction>
         <CardHeader>
-          <CardAction className="ml-auto">Edit Info</CardAction>
           <div className="flex flex-col items-center justify-center gap-2 w-full text-center">
             <Avatar className="h-40 w-40">
               <AvatarImage src={user.image as string} alt={user.name} />
@@ -59,7 +66,9 @@ export default async function Profile() {
                 Gender:
                 <p className="text-sm text-muted-foreground">
                   {user.gender && (
-                    <Badge variant="secondary">{user.gender}</Badge>
+                    <Badge variant="secondary">
+                      {formatGenderLabel(user.gender)}
+                    </Badge>
                   )}
                 </p>
               </div>

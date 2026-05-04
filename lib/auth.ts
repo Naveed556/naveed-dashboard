@@ -6,11 +6,40 @@ import { nextCookies } from "better-auth/next-js";
 import { dash } from "@better-auth/infra";
 import clientPromise from "./mongodb";
 import { sendEmail } from "./email";
+import { APIError } from "@better-auth/core/error";
+import {
+  normalizeUsernameForAuth,
+  RESERVED_ADMIN_USERNAME,
+} from "@/lib/username";
+import { reservedAdminUsernamePlugin } from "@/lib/reserved-username-plugin";
 
 const client = await clientPromise;
 const db = client.db();
 
 export const auth = betterAuth({
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          const u = user as Record<string, unknown>;
+          const raw = u.username;
+          const role = String(u.role ?? "user");
+          if (typeof raw === "string") {
+            if (
+              normalizeUsernameForAuth(raw) === RESERVED_ADMIN_USERNAME &&
+              role !== "admin"
+            ) {
+              throw APIError.from("BAD_REQUEST", {
+                code: "RESERVED_USERNAME",
+                message: "This username is reserved for administrators.",
+              });
+            }
+          }
+          return { data: user };
+        },
+      },
+    },
+  },
   session: {
     cookieCache: {
       enabled: true,
@@ -78,19 +107,9 @@ export const auth = betterAuth({
     admin(),
     dash(),
     username({
-      usernameValidator: (username) => {
-        if (username === "admin") {
-          return false;
-        }
-        return true;
-      },
-      usernameNormalization: (username) => {
-        return username.toLowerCase()
-          .replaceAll("0", "o")
-          .replaceAll("3", "e")
-          .replaceAll("4", "a");
-      }
+      usernameNormalization: (u) => normalizeUsernameForAuth(u),
     }),
+    reservedAdminUsernamePlugin(),
     nextCookies(),
   ],
 });

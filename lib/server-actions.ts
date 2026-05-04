@@ -4,8 +4,13 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { getCachedSites } from "@/lib/cached-sites";
-import { Sites, User } from "./types";
+import { User } from "./types";
 import clientPromise from "./mongodb";
+import { isAllowedGender } from "@/lib/gender";
+import {
+  normalizeUsernameForAuth,
+  RESERVED_ADMIN_USERNAME,
+} from "@/lib/username";
 
 const client = await clientPromise;
 const db = client.db();
@@ -124,6 +129,12 @@ export async function createUserAction(
       "Passwords do not match. Please make sure both password fields are the same.",
     );
   }
+  if (!isAllowedGender(gender)) {
+    throw new Error("Gender must be male or female.");
+  }
+  if (normalizeUsernameForAuth(username.trim()) === RESERVED_ADMIN_USERNAME) {
+    throw new Error("This username is reserved for administrators.");
+  }
   const usernameRes = await auth.api.isUsernameAvailable({
     body: {
       username,
@@ -177,6 +188,9 @@ export async function updateUserAction(
   userId: string,
   data: { name?: string; email?: string; gender?: string; commission?: number; accessibleSites?: string[] },
 ): Promise<User> {
+  if (data.gender !== undefined && !isAllowedGender(data.gender)) {
+    throw new Error("Gender must be male or female.");
+  }
   if (data.email) {
     const result = await auth.api.listUsers({
       query: {
@@ -207,6 +221,68 @@ export async function updateUserAction(
   revalidatePath("/admin");
   revalidatePath("/dashboard");
   return updatedUser;
+}
+
+export async function updateCurrentUserProfile(data: {
+  name: string;
+  username: string;
+  gender: string;
+}): Promise<void> {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session?.user) {
+    throw new Error("You must be signed in to update your profile.");
+  }
+
+  const current = session.user as User;
+  if (!isAllowedGender(data.gender)) {
+    throw new Error("Gender must be male or female.");
+  }
+  const normalizedUsername = normalizeUsernameForAuth(data.username.trim());
+  const currentUsername = normalizeUsernameForAuth(current.username ?? "");
+
+  if (
+    normalizedUsername === RESERVED_ADMIN_USERNAME &&
+    current.role !== "admin"
+  ) {
+    throw new Error("This username is reserved for administrators.");
+  }
+
+  if (normalizedUsername !== currentUsername) {
+    const usernameRes = await auth.api.isUsernameAvailable({
+      body: {
+        username: normalizedUsername,
+      },
+    });
+    if (!usernameRes?.available) {
+      throw new Error("That username is already taken. Please choose another.");
+    }
+  }
+
+  const body: {
+    name: string;
+    username: string;
+    gender: string;
+    image?: string;
+  } = {
+    name: data.name.trim(),
+    username: normalizedUsername,
+    gender: data.gender,
+  };
+
+  if (data.gender === "male" || data.gender === "female") {
+    body.image =
+      data.gender === "male" ? "/male_profile.png" : "/female_profile.png";
+  }
+
+  await auth.api.updateUser({
+    body,
+    headers: await headers(),
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/admin");
 }
 
 export async function banUserAction(userId: string) {
@@ -308,6 +384,9 @@ export async function updatePassword(currentPassword: string, newPassword: strin
   });
 
   if (!data?.user) {
-    throw new Error("Unable to chnage Password");
+    throw new Error("Unable to change password.");
   }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/admin");
 }

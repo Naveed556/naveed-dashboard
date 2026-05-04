@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function SidebarLoadingFallback() {
   return (
     <div
-      className="flex h-full w-[var(--sidebar-width)] flex-col gap-4 border-r bg-sidebar p-4"
+      className="flex h-full w-(--sidebar-width) flex-col gap-4 border-r bg-sidebar p-4"
       aria-hidden
     >
       <Skeleton className="h-10 w-full rounded-md" />

@@ -63,6 +63,7 @@ import {
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import RevenueReport from "./revenue-report";
+import { formatGenderLabel, normalizeGenderSelect } from "@/lib/gender";
 
 export default function UserStats({
   params,
@@ -124,7 +125,7 @@ export default function UserStats({
     setEditForm({
       name: user.name ?? "",
       email: user.email ?? "",
-      gender: user.gender ?? "male",
+      gender: normalizeGenderSelect(user.gender),
       commission:user.commission || 0,
       accessibleSites: Array.isArray(accessibleSitesFromUser)
         ? accessibleSitesFromUser
@@ -156,9 +157,7 @@ export default function UserStats({
           setEditForm({
             name: typedUser.name ?? "",
             email: typedUser.email ?? "",
-            gender:
-              typedUser.gender ||
-              "male",
+            gender: normalizeGenderSelect(typedUser.gender),
             commission: typedUser.commission || 0,
             accessibleSites: Array.isArray(accessibleSitesFromUser)
               ? accessibleSitesFromUser
@@ -279,7 +278,6 @@ export default function UserStats({
                           <SelectContent>
                             <SelectItem value="male">Male</SelectItem>
                             <SelectItem value="female">Female</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
                       </Field>
@@ -407,7 +405,9 @@ export default function UserStats({
               </p>
               <div className="flex gap-2 flex-wrap">
                 {user.gender && (
-                  <Badge variant="secondary">{user.gender}</Badge>
+                  <Badge variant="secondary">
+                    {formatGenderLabel(user.gender)}
+                  </Badge>
                 )}
                 {user.commission !== undefined && (
                   <Badge variant="outline">

@@ -7,6 +7,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin } from "better-auth/plugins";
 import { username } from "better-auth/plugins";
 import { dash } from "@better-auth/infra";
+import { getSitesAction } from "@/lib/server-actions";
 
 function loadDotEnv(filePath: string) {
     if (!existsSync(filePath)) return;
@@ -45,6 +46,8 @@ async function main() {
     try {
         await client.connect();
         const db = client.db();
+        const sites = await getSitesAction();
+        const sitesArray = sites.map((site) => site.domain) as string[];
 
         const auth = betterAuth({
             user: {
@@ -52,7 +55,7 @@ async function main() {
                 additionalFields: {
                     gender: { type: "string", defaultValue: "male", required: true },
                     commission: { type: "number", defaultValue: 0, required: true },
-                    accessibleSites: { type: "string[]", defaultValue: [], required: true },
+                    accessibleSites: { type: "string[]", defaultValue: sitesArray, required: true },
                 },
             },
             database: mongodbAdapter(db),
@@ -61,12 +64,6 @@ async function main() {
                 admin(),
                 dash(),
                 username({
-                    usernameValidator: (username) => {
-                        if (username === "admin") {
-                            return false;
-                        }
-                        return true;
-                    },
                     usernameNormalization: (username) => {
                         return username.toLowerCase()
                             .replaceAll("0", "o")
