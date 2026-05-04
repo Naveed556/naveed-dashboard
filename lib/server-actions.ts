@@ -2,7 +2,8 @@
 
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { getCachedSites } from "@/lib/cached-sites";
 import { Sites, User } from "./types";
 import clientPromise from "./mongodb";
 
@@ -51,16 +52,17 @@ export async function addSiteAction(url: string, propertyId: string) {
     createdAt: new Date(),
   });
   revalidatePath('/admin');
+  revalidateTag("sites", "max");
 }
 
 export async function deleteSiteAction(domain: string) {
   await db.collection('sites').deleteOne({ domain });
   revalidatePath('/admin');
+  revalidateTag("sites", "max");
 }
 
 export async function getSitesAction() {
-  const sites = await db.collection('sites').find({}).toArray();
-  return sites.map(({ _id, ...site }) => site) as Sites[];
+  return getCachedSites();
 }
 
 export async function getCurrentUserSession() {

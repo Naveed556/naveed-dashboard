@@ -1,7 +1,7 @@
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { UserSidebar } from "@/components/user-sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -9,7 +9,11 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toogle";
-import { getSitesAction } from "@/lib/server-actions";
+import { DashboardSidebarShell } from "@/components/dashboard-sidebar-shell";
+import {
+  MainInsetLoadingFallback,
+  SidebarLoadingFallback,
+} from "@/components/layout-loading-fallbacks";
 
 export default async function UserDashboardLayout({
   children,
@@ -29,24 +33,11 @@ export default async function UserDashboardLayout({
     redirect("/admin");
   }
 
-  // Get all sites and filter by user's accessible sites
-  const allAvailableSites = await getSitesAction();
-  const userAccessibleSites = session.user.accessibleSites || [];
-  const userSites = allAvailableSites.filter((site) =>
-    userAccessibleSites.includes(site.domain),
-  );
-
-  // Transform user data for the sidebar
-  const userData = {
-    name: session.user.name || undefined,
-    email: session.user.email,
-    image: session.user.image || undefined,
-    accessibleSites: session.user.accessibleSites || [],
-  };
-
   return (
     <SidebarProvider>
-      <UserSidebar user={userData} sites={userSites} />
+      <Suspense fallback={<SidebarLoadingFallback />}>
+        <DashboardSidebarShell sessionUser={session.user} />
+      </Suspense>
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
@@ -61,7 +52,7 @@ export default async function UserDashboardLayout({
             <ModeToggle />
           </div>
         </header>
-        {children}
+        <Suspense fallback={<MainInsetLoadingFallback />}>{children}</Suspense>
       </SidebarInset>
     </SidebarProvider>
   );

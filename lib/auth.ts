@@ -11,6 +11,12 @@ const client = await clientPromise;
 const db = client.db();
 
 export const auth = betterAuth({
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60,
+    },
+  },
   user: {
     modelName: "user",
     additionalFields: {

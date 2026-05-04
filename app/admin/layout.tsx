@@ -1,7 +1,12 @@
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AdminSidebar } from "@/components/admin-sidebar";
+import {
+  MainInsetLoadingFallback,
+  SidebarLoadingFallback,
+} from "@/components/layout-loading-fallbacks";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -26,7 +31,9 @@ export default async function AdminLayout({
   }
   return (
     <SidebarProvider>
-      <AdminSidebar />
+      <Suspense fallback={<SidebarLoadingFallback />}>
+        <AdminSidebar />
+      </Suspense>
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
@@ -41,7 +48,7 @@ export default async function AdminLayout({
               <ModeToggle />
             </div>
         </header>
-        {children}
+        <Suspense fallback={<MainInsetLoadingFallback />}>{children}</Suspense>
       </SidebarInset>
     </SidebarProvider>
   );
