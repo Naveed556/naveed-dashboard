@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PlatformTitle } from "@/lib/constants";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -20,9 +21,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DailyEarn — Share Links. Earn Money.",
+  title: `${PlatformTitle} — Share Links. Earn Money.`,
   description:
-    "Generate UTM tracking links, share anywhere, and earn $2–$18 RPM with transparent real-time payouts. Join 50K+ active affiliates on DailyEarn.",
+    `Generate UTM tracking links, share anywhere, and earn $2–$18 RPM with transparent real-time payouts. Join 50K+ active affiliates on ${PlatformTitle}.`,
   keywords: [
     "affiliate earnings",
     "UTM links",
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
     "RPM earnings",
   ],
   openGraph: {
-    title: "DailyEarn — Share Links. Earn Money.",
+    title: `${PlatformTitle} — Share Links. Earn Money.`,
     description:
       "Generate UTM tracking links and earn passive income for every click.",
     type: "website",

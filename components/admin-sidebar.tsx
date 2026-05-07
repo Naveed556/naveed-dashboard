@@ -14,7 +14,12 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { GlobeIcon, LayoutDashboardIcon, UsersIcon, Zap } from "lucide-react";
+import {
+  BarChart3Icon,
+  GlobeIcon,
+  LayoutDashboardIcon,
+  UsersIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { getSitesAction } from "@/lib/server-actions";
 
@@ -64,12 +69,13 @@ export async function AdminSidebar({
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Zap className="h-4 w-4" />
+                  <BarChart3Icon className="h-4 w-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">
-                    DailyEarn | Admin
+                  <span className="truncate font-semibold">
+                    Admin Dashboard
                   </span>
+                  <span className="truncate text-xs">Analytics & Earnings</span>
                 </div>
               </SidebarMenuButton>
             </Link>

@@ -7,10 +7,6 @@ import { getCachedSites } from "@/lib/cached-sites";
 import { User } from "./types";
 import clientPromise from "./mongodb";
 import { isAllowedGender } from "@/lib/gender";
-import {
-  normalizeUsernameForAuth,
-  RESERVED_ADMIN_USERNAME,
-} from "@/lib/username";
 
 const client = await clientPromise;
 const db = client.db();
@@ -132,9 +128,7 @@ export async function createUserAction(
   if (!isAllowedGender(gender)) {
     throw new Error("Gender must be male or female.");
   }
-  if (normalizeUsernameForAuth(username.trim()) === RESERVED_ADMIN_USERNAME) {
-    throw new Error("This username is reserved for administrators.");
-  }
+
   const usernameRes = await auth.api.isUsernameAvailable({
     body: {
       username,
@@ -235,29 +229,8 @@ export async function updateCurrentUserProfile(data: {
     throw new Error("You must be signed in to update your profile.");
   }
 
-  const current = session.user as User;
   if (!isAllowedGender(data.gender)) {
     throw new Error("Gender must be male or female.");
-  }
-  const normalizedUsername = normalizeUsernameForAuth(data.username.trim());
-  const currentUsername = normalizeUsernameForAuth(current.username ?? "");
-
-  if (
-    normalizedUsername === RESERVED_ADMIN_USERNAME &&
-    current.role !== "admin"
-  ) {
-    throw new Error("This username is reserved for administrators.");
-  }
-
-  if (normalizedUsername !== currentUsername) {
-    const usernameRes = await auth.api.isUsernameAvailable({
-      body: {
-        username: normalizedUsername,
-      },
-    });
-    if (!usernameRes?.available) {
-      throw new Error("That username is already taken. Please choose another.");
-    }
   }
 
   const body: {
@@ -267,7 +240,7 @@ export async function updateCurrentUserProfile(data: {
     image?: string;
   } = {
     name: data.name.trim(),
-    username: normalizedUsername,
+    username: data.username.trim(),
     gender: data.gender,
   };
 

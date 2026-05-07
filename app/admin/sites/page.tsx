@@ -118,8 +118,8 @@ export default function SitesPage() {
             Visit Google Analytics &gt; Admin &gt; Property Access Management
             &gt; Add Users &gt; Add the service email below with atleast
             &quot;Viewer&quot; role
-            <Badge variant={"outline"} className="ml-2 py-4">
-              {Client_Email}{" "}
+            <Badge variant={"outline"} className="ml-2 my-2 py-4">
+              <p className="text-wrap">{Client_Email}{" "}</p>
               <Button
                 variant={"outline"}
                 size={"icon-xs"}

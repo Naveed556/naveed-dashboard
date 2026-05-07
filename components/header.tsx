@@ -5,6 +5,7 @@ import { Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { PlatformTitle } from "@/lib/constants";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -32,7 +33,7 @@ const Header = () => {
           <Zap className="h-4 w-4" />
         </div>
         <span className="font-semibold text-base tracking-tight">
-          DailyEarn
+          {PlatformTitle}
         </span>
       </Link>
 

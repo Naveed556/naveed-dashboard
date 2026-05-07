@@ -14,6 +14,7 @@ import {
   Item,
   ItemActions,
   ItemContent,
+  ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ interface WPPost {
   slug: string;
 }
 
-const createRandomId = (length: number) => {
+const createRandomId = (length: number): string => {
   const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
   const values = new Uint32Array(length);
   crypto.getRandomValues(values);
@@ -135,7 +136,7 @@ export default function UTMTrackingLinksPage() {
         setPosts([]);
         setLoading(false);
       });
-  }, [selectedCategory, siteDomain, user?.username]);
+  }, [selectedCategory, siteDomain]);
 
   const generateUTMLink = (post: WPPost) => {
     const username = user?.username || "";
@@ -222,6 +223,7 @@ export default function UTMTrackingLinksPage() {
                         <Item variant="outline" className="hover:bg-muted">
                           <ItemContent>
                             <ItemTitle>{post.title.rendered}</ItemTitle>
+                            <ItemDescription>{generateUTMLink(post)}</ItemDescription>
                           </ItemContent>
                           <ItemActions>
                             <Button

@@ -69,7 +69,6 @@ export function NavMain({
                 <Collapsible defaultOpen={true} className="group/collapsible">
                   <SidebarMenuButton
                     asChild
-                    isActive={active}
                     tooltip={item.title}
                     className="justify-between"
                   >
@@ -85,7 +84,6 @@ export function NavMain({
                         <SidebarMenuSubItem key={subitem.title}>
                           <SidebarMenuSubButton
                             asChild
-                            isActive={isActive(subitem.url)}
                             className={`${isActive(subitem.url) ? "bg-primary text-primary-foreground font-semibold hover:bg-primary/80 hover:text-primary-foreground" : ""}`}
                           >
                             <Link href={subitem.url}>
