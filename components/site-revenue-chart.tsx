@@ -49,14 +49,22 @@ export function SiteRevenueChart({
   description,
 }: SiteRevenueChartProps) {
   const hasData = data.length > 0;
-  const totals = data.reduce(
-    (acc, curr) => {
-      acc.impressions += curr.impressions;
-      acc.totalRevenue += curr.totalRevenue;
-      return acc;
-    },
-    { impressions: 0, totalRevenue: 0 },
-  );
+
+  const calculateTotals = () => {
+    if (hasData) {
+      return data.reduce(
+        (acc, curr) => {
+          acc.impressions += curr.impressions;
+          acc.totalRevenue += curr.totalRevenue;
+          return acc;
+        },
+        { impressions: 0, totalRevenue: 0 },
+      );
+    } else {
+      return { impressions: 0, totalRevenue: 0 };
+    }
+  };
+  const totals = calculateTotals();
 
   return (
     <Card className="min-h-90">

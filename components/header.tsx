@@ -1,11 +1,12 @@
 "use client";
 import { ModeToggle } from "./mode-toogle"; 
 import Link from "next/link";
-import { Zap, ArrowRight } from "lucide-react";
+import { ArrowRight, BookIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { PlatformTitle } from "@/lib/constants";
+import Image from "next/image";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -27,11 +28,11 @@ const Header = () => {
       <Link
         href="/"
         className="flex items-center gap-2 group"
-        aria-label="DailyEarn home"
+        aria-label="Earn Teams home"
       >
-        <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-          <Zap className="h-4 w-4" />
-        </div>
+        {/* <div classNa/me="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"> */}
+          <Image src="/logo.png" alt="Earn Teams" width={32} height={32} />
+        {/* </div> */}
         <span className="font-semibold text-base tracking-tight">
           {PlatformTitle}
         </span>
@@ -39,6 +40,11 @@ const Header = () => {
 
       <nav className="flex items-center gap-2" aria-label="Main navigation">
         <ModeToggle />
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/courses">
+            Courses <BookIcon className="ml-1.5 h-3.5 w-3.5" />
+          </Link>
+        </Button>
         <Button
           size="sm"
           asChild

@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/accordion";
 import Header from "@/components/header";
 import { cn } from "@/lib/utils";
+import { PlatformTitle } from "@/lib/constants";
+import Image from "next/image";
 
 /* ─── DATA ─────────────────────────────────────────────────── */
 
@@ -612,10 +614,10 @@ export default function Home() {
       <footer className="px-6 md:px-10 py-8 bg-[--hero-bg] flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/5">
         <div className="flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground/10 text-primary">
-            <Zap className="h-3.5 w-3.5" />
+            <Image src="/logo.png" alt="Earn Teams" width={32} height={32} />
           </span>
           <span className="text-sm font-medium text-muted-foreground">
-            DailyEarn
+            {PlatformTitle}
           </span>
           <span className="text-xs text-muted-foreground ml-1">
             &copy; Copyright {new Date().getFullYear()}. All Rights Reserved

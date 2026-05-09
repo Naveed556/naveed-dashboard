@@ -67,7 +67,6 @@ export default function CreateUserForm() {
   useEffect(() => {
     const getAllSites = async () => {
       const fetchedSites = await getSitesAction();
-      console.log(fetchedSites);
       setSites(fetchedSites);
     };
     getAllSites();
