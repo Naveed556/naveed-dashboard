@@ -1,5 +1,5 @@
 "use client";
-import { ModeToggle } from "./mode-toogle"; 
+import { ModeToggle } from "./mode-toogle";
 import Link from "next/link";
 import { ArrowRight, BookIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ const Header = () => {
         aria-label="Earn Teams home"
       >
         {/* <div classNa/me="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground"> */}
-          <Image src="/logo.png" alt="Earn Teams" width={32} height={32} />
+        <Image src="/logo.png" alt="Earn Teams" width={32} height={32} />
         {/* </div> */}
         <span className="font-semibold text-base tracking-tight">
           {PlatformTitle}
@@ -42,7 +42,8 @@ const Header = () => {
         <ModeToggle />
         <Button variant="outline" size="sm" asChild>
           <Link href="/courses">
-            Courses <BookIcon className="ml-1.5 h-3.5 w-3.5" />
+            <p className="hidden md:block mr-1.5">Courses </p>{" "}
+            <BookIcon className="h-3.5 w-3.5" />
           </Link>
         </Button>
         <Button
@@ -51,7 +52,7 @@ const Header = () => {
           className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
         >
           <Link href="/auth/login">
-            Get started <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+            Dashboard <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
           </Link>
         </Button>
       </nav>

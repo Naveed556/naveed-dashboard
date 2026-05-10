@@ -8,6 +8,23 @@ import {
   CardFooter,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dot } from "lucide-react";
@@ -16,11 +33,11 @@ import Link from "next/link";
 
 const Premium_Courses = [
   {
-    image: "/PDMC.webp",
-    title: "Premium Digital Marketing Course",
-    desc: "This course is specialy designed to understand deep insights of pinterest platform to get as much benefits as we can. Complete the full course to transform your self into a Pinterest Marketing Master",
-    actualPrice: 1599,
-    discountedPrice: 950,
+    image: "/PPMC.webp",
+    title: "Premium Pinterest Marketing Course",
+    desc: "This course is specialy designed to understand deep insights of pinterest platform to get as much benefits as we can. Complete the full course to transform your self into a Pinterest Marketing Expert.",
+    actualPrice: 299,
+    discountedPrice: 100,
     tags: [
       "Multiple Account Strategy",
       "Pinterest Pins Seo",
@@ -84,12 +101,56 @@ export default function CoursesPage() {
                   </del>
                 </p>
                 <CardAction>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className="hover:-translate-y-1"
+                      >
+                        View Reviews
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>
+                          Pinterest Marketing Course Student Reviews
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="flex items-center justify-center max-w-[70vw] w-auto justify-self-center">
+                        <Carousel className="w-full max-w-full">
+                          <CarouselContent>
+                            {Array.from({ length: 7 }).map((_, index) => (
+                              <CarouselItem key={index}>
+                                <Card>
+                                  <CardContent className="flex items-center justify-center relative aspect-square">
+                                    <Image
+                                      src={`/ppmc-reviews/ss${index + 1}.jpeg`}
+                                      alt="Thumbnail"
+                                      fill
+                                      objectFit="contain"
+                                    />
+                                  </CardContent>
+                                </Card>
+                              </CarouselItem>
+                            ))}
+                          </CarouselContent>
+                          <CarouselPrevious />
+                          <CarouselNext />
+                        </Carousel>
+                      </div>
+                      <DialogFooter>
+                        <DialogClose asChild>
+                          <Button variant="outline">Close</Button>
+                        </DialogClose>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                   <Link
                     href={`https://api.whatsapp.com/send?phone=923064358389&text=Hello!%20I%20want%20to%20Purchase%20${course.title}%2C%20Please%20Provide%20Payment%20Details.`}
                   >
                     <Button
                       variant={"default"}
-                      className="font-bold hover:-translate-y-1"
+                      className="hover:-translate-y-1"
                     >
                       Enroll Now
                     </Button>
