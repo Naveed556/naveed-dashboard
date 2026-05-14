@@ -43,7 +43,7 @@ export function NavUser({
       await authClient.signOut({
         fetchOptions: {
           onSuccess: () => {
-            router.push("/auth/login");
+            router.push("/auth/user-login");
             setLoggingOut(false);
             toast.success("Signed out successfully!");
           },

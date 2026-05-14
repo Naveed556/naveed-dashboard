@@ -1,7 +1,6 @@
 import { Suspense } from "react";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { ActivateRoleSession } from "@/components/activate-role-session";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -14,24 +13,31 @@ import {
   MainInsetLoadingFallback,
   SidebarLoadingFallback,
 } from "@/components/layout-loading-fallbacks";
+import { getRoleSession } from "@/lib/role-session";
 
 export default async function UserDashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const roleSession = await getRoleSession("user");
 
-  if (!session?.user) {
-    redirect("/auth/login");
+  if (roleSession.status === "missing") {
+    redirect(roleSession.loginPath);
   }
 
-  // If user is admin, redirect to admin panel
-  if (session.user.role === "admin") {
-    redirect("/admin");
+  if (roleSession.status === "switch") {
+    return (
+      <ActivateRoleSession
+        sessionToken={roleSession.sessionToken}
+        homePath={roleSession.homePath}
+        loginPath={roleSession.loginPath}
+        label="user"
+      />
+    );
   }
+
+  const session = roleSession.session;
 
   return (
     <SidebarProvider>

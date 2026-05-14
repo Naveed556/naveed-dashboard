@@ -1,7 +1,6 @@
 import { Suspense } from "react";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { ActivateRoleSession } from "@/components/activate-role-session";
 import { AdminSidebar } from "@/components/admin-sidebar";
 import {
   MainInsetLoadingFallback,
@@ -14,21 +13,30 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/mode-toogle";
+import { getRoleSession } from "@/lib/role-session";
 
 export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const roleSession = await getRoleSession("admin");
 
-  if (session?.user?.role === "user") {
-    redirect("/dashboard");
-  } else if (!session?.user) {
-    redirect("/auth/login");
+  if (roleSession.status === "missing") {
+    redirect(roleSession.loginPath);
   }
+
+  if (roleSession.status === "switch") {
+    return (
+      <ActivateRoleSession
+        sessionToken={roleSession.sessionToken}
+        homePath={roleSession.homePath}
+        loginPath={roleSession.loginPath}
+        label="admin"
+      />
+    );
+  }
+
   return (
     <SidebarProvider>
       <Suspense fallback={<SidebarLoadingFallback />}>

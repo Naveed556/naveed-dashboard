@@ -1,4 +1,5 @@
 import { PlatformExpense } from "@/lib/constants";
+import { validateGa4Access } from "@/lib/ga4-authorization";
 import { google } from "googleapis";
 import { NextResponse, NextRequest } from "next/server";
 
@@ -16,14 +17,25 @@ const subtractPlatformExpense = (value: number) => {
 
 export async function POST(request: NextRequest) {
     try {
-        const { username, propertyId } = await request.json();
+        const payload = await request.json();
+        const username = typeof payload.username === "string" ? payload.username.trim() : "";
+        const propertyId = typeof payload.propertyId === "string" ? payload.propertyId.trim() : "";
 
-        if (!username || username.trim() === "") {
+        if (!username) {
             return NextResponse.json({ error: "username is missing or empty." }, { status: 400 });
         }
 
-        if (!propertyId || propertyId.trim() === "") {
+        if (!propertyId) {
             return NextResponse.json({ error: "propertyId is missing or empty." }, { status: 400 });
+        }
+
+        const accessError = await validateGa4Access(
+            request.headers,
+            username,
+            propertyId,
+        );
+        if (accessError) {
+            return accessError;
         }
 
         const analyticsData = google.analyticsdata({ version: "v1beta", auth });

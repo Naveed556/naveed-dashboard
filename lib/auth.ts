@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin } from "better-auth/plugins";
+import { multiSession } from "better-auth/plugins";
 import { username } from "better-auth/plugins";
 import { nextCookies } from "better-auth/next-js";
 import { dash } from "@better-auth/infra";
@@ -76,6 +77,7 @@ export const auth = betterAuth({
   },
   plugins: [
     admin(),
+    multiSession(),
     dash(),
     username(),
     nextCookies(),

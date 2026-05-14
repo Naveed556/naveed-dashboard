@@ -1,5 +1,6 @@
 import { createAuthClient } from "better-auth/react";
 import { adminClient } from "better-auth/client/plugins";
+import { multiSessionClient } from "better-auth/client/plugins";
 import { usernameClient } from "better-auth/client/plugins";
 import { sentinelClient } from "@better-auth/infra/client";
 import { inferAdditionalFields } from "better-auth/client/plugins";
@@ -9,6 +10,7 @@ export const authClient = createAuthClient({
   baseURL: (process.env.BASE_URL as string) || "",
   plugins: [
     adminClient(),
+    multiSessionClient(),
     usernameClient(),
     sentinelClient(),
     inferAdditionalFields<typeof auth>(),

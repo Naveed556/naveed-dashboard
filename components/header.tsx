@@ -51,7 +51,7 @@ const Header = () => {
           asChild
           className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
         >
-          <Link href="/auth/login">
+          <Link href="/auth/user-login">
             Dashboard <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
           </Link>
         </Button>

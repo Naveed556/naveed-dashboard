@@ -7,9 +7,48 @@ import { getCachedSites } from "@/lib/cached-sites";
 import { User } from "./types";
 import clientPromise from "./mongodb";
 import { isAllowedGender } from "@/lib/gender";
+import { hasAuthRole } from "@/lib/auth-roles";
 
 const client = await clientPromise;
 const db = client.db();
+
+async function requireSession() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    throw new Error("You must be signed in to perform this action.");
+  }
+
+  return session;
+}
+
+async function requireAdminSession() {
+  const session = await requireSession();
+
+  if (!hasAuthRole(session.user, "admin")) {
+    throw new Error("You do not have permission to perform this action.");
+  }
+
+  return session;
+}
+
+async function requireUserDataAccess(userId: string) {
+  const session = await requireSession();
+
+  if (hasAuthRole(session.user, "admin") || session.user.id === userId) {
+    return session;
+  }
+
+  throw new Error("You do not have permission to access this user's data.");
+}
+
+function getAccessibleSitesFromUser(user: { accessibleSites?: unknown }) {
+  return Array.isArray(user.accessibleSites)
+    ? user.accessibleSites.filter((site): site is string => typeof site === "string")
+    : [];
+}
 
 interface DbPayment {
   userId: string;
@@ -42,6 +81,8 @@ export async function extractDomain(input: string): Promise<string | null> {
 }
 
 export async function addSiteAction(url: string, propertyId: string) {
+  await requireAdminSession();
+
   const domain = await extractDomain(url);
   if (!domain) throw new Error("Invalid URL");
 
@@ -57,13 +98,23 @@ export async function addSiteAction(url: string, propertyId: string) {
 }
 
 export async function deleteSiteAction(domain: string) {
+  await requireAdminSession();
+
   await db.collection('sites').deleteOne({ domain });
   revalidatePath('/admin');
   revalidateTag("sites", "max");
 }
 
 export async function getSitesAction() {
-  return getCachedSites();
+  const session = await requireSession();
+  const sites = await getCachedSites();
+
+  if (hasAuthRole(session.user, "admin")) {
+    return sites;
+  }
+
+  const accessibleSites = getAccessibleSitesFromUser(session.user);
+  return sites.filter((site) => accessibleSites.includes(site.domain));
 }
 
 export async function getCurrentUserSession() {
@@ -74,6 +125,8 @@ export async function getCurrentUserSession() {
 }
 
 export async function getUser(userId: string) {
+  await requireAdminSession();
+
   const user = await auth.api.getUser({
     query: {
       id: userId,
@@ -84,6 +137,8 @@ export async function getUser(userId: string) {
 }
 
 export async function getUsersByRoleAndSite(website: string) {
+  await requireAdminSession();
+
   const { users } = await auth.api.listUsers({
     query: {
       limit: 100,
@@ -120,6 +175,8 @@ export async function createUserAction(
   commission: number,
   sites: string[],
 ) {
+  await requireAdminSession();
+
   if (password !== confirmPassword) {
     throw new Error(
       "Passwords do not match. Please make sure both password fields are the same.",
@@ -182,6 +239,8 @@ export async function updateUserAction(
   userId: string,
   data: { name?: string; email?: string; gender?: string; commission?: number; accessibleSites?: string[] },
 ): Promise<User> {
+  await requireAdminSession();
+
   if (data.gender !== undefined && !isAllowedGender(data.gender)) {
     throw new Error("Gender must be male or female.");
   }
@@ -259,6 +318,8 @@ export async function updateCurrentUserProfile(data: {
 }
 
 export async function banUserAction(userId: string) {
+  await requireAdminSession();
+
   await auth.api.banUser({
     body: { userId },
     headers: await headers(),
@@ -267,6 +328,8 @@ export async function banUserAction(userId: string) {
 }
 
 export async function unbanUserAction(userId: string) {
+  await requireAdminSession();
+
   await auth.api.unbanUser({
     body: { userId },
     headers: await headers(),
@@ -275,6 +338,8 @@ export async function unbanUserAction(userId: string) {
 }
 
 export async function deleteUserAction(userId: string) {
+  await requireAdminSession();
+
   await auth.api.removeUser({
     body: { userId },
     headers: await headers(),
@@ -283,16 +348,24 @@ export async function deleteUserAction(userId: string) {
 }
 
 export async function getPaymentsForUser(userId: string): Promise<SerializedPayment[]> {
+  await requireUserDataAccess(userId);
+
   const payments = await db.collection<DbPayment>('payments').find({ userId }).toArray();
 
-  return payments.map(({ _id, ...payment }) => ({
-    ...payment,
+  return payments.map((payment) => ({
+    userId: payment.userId,
+    month: payment.month,
+    year: payment.year,
+    website: payment.website,
+    status: payment.status,
     updatedAt: payment.updatedAt.toISOString(),
     paymentDate: payment.paymentDate,
   }));
 }
 
 export async function updatePaymentStatus(userId: string, month: number, year: number, website: string, status: "Paid" | "Pending", paymentDate?: string) {
+  await requireAdminSession();
+
   const updateData: Partial<DbPayment> = { status, updatedAt: new Date() };
   if (status === 'Paid') {
     updateData.paymentDate = paymentDate || new Date().toISOString();

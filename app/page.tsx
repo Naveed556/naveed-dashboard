@@ -216,7 +216,7 @@ export default function Home() {
               size="lg"
               className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-lg transition-all hover:-translate-y-0.5"
             >
-              <Link href="/auth/login">
+              <Link href="/auth/user-login">
                 Start for free <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -450,7 +450,7 @@ export default function Home() {
             asChild
             className="text-muted-foreground hover:text-foreground self-start sm:self-end"
           >
-            <Link href="/auth/login">
+            <Link href="/auth/user-login">
               Explore all features <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
             </Link>
           </Button>
@@ -604,7 +604,7 @@ export default function Home() {
           variant={"secondary"}
           className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-medium transition-all hover:-translate-y-0.5 shadow-xl"
         >
-          <Link href="/auth/login">
+          <Link href="/auth/user-login">
             Create free account <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>

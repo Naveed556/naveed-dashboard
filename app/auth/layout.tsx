@@ -1,22 +1,10 @@
 import Header from "@/components/header";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 
-export default async function AuthLayout({
+export default function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth.api.getSession({
-    headers: await headers(), // you need to pass the headers object.
-  });
-  if (session?.user?.role === "admin") {
-    redirect("/admin");
-  } else if (session?.user?.role === "user") {
-    redirect("/dashboard");
-  }
-
   return (
     <>
       <Header />

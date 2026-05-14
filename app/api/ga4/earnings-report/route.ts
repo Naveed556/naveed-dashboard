@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import { NextRequest, NextResponse } from "next/server";
 import { PlatformExpense } from "@/lib/constants";
+import { validateGa4Access } from "@/lib/ga4-authorization";
 
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -16,20 +17,35 @@ const subtractPlatformExpense = (value: number) => {
 
 export async function POST(request: NextRequest) {
   try {
-    const { username, propertyId, startDate, endDate } = await request.json();
+    const payload = await request.json();
+    const username = typeof payload.username === "string" ? payload.username.trim() : "";
+    const propertyId =
+      typeof payload.propertyId === "string" ? payload.propertyId.trim() : "";
+    const startDate = payload.startDate;
+    const endDate = payload.endDate;
 
-    if (!propertyId || propertyId.trim() === "") {
+    if (!propertyId) {
       return NextResponse.json(
         { error: "propertyId is missing or empty." },
         { status: 400 },
       );
     }
-    if (!username || username.trim() === "") {
+    if (!username) {
       return NextResponse.json(
         { error: "username parameter is missing or empty." },
         { status: 400 },
       );
     }
+
+    const accessError = await validateGa4Access(
+      request.headers,
+      username,
+      propertyId,
+    );
+    if (accessError) {
+      return accessError;
+    }
+
     if (new Date(startDate) > new Date(endDate)) {
       return NextResponse.json(
         { error: "Start date should be less than end date" },
