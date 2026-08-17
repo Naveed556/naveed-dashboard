@@ -8,6 +8,14 @@ import { User } from "./types";
 import clientPromise from "./mongodb";
 import { isAllowedGender } from "@/lib/gender";
 import { hasAuthRole } from "@/lib/auth-roles";
+import { google } from "googleapis";
+
+export type GA4AccessResult = {
+  propertyId: string;
+  hasAccess: boolean;
+  displayName?: string;
+  error?: string;
+};
 
 const client = await clientPromise;
 const db = client.db();
@@ -46,7 +54,9 @@ async function requireUserDataAccess(userId: string) {
 
 function getAccessibleSitesFromUser(user: { accessibleSites?: unknown }) {
   return Array.isArray(user.accessibleSites)
-    ? user.accessibleSites.filter((site): site is string => typeof site === "string")
+    ? user.accessibleSites.filter(
+        (site): site is string => typeof site === "string",
+      )
     : [];
 }
 
@@ -55,12 +65,12 @@ interface DbPayment {
   month: number;
   year: number;
   website: string;
-  status: 'Paid' | 'Pending';
+  status: "Paid" | "Pending";
   paymentDate: string | null;
   updatedAt: Date;
 }
 
-type SerializedPayment = Omit<DbPayment, 'updatedAt'> & {
+type SerializedPayment = Omit<DbPayment, "updatedAt"> & {
   updatedAt: string;
 };
 
@@ -86,22 +96,22 @@ export async function addSiteAction(url: string, propertyId: string) {
   const domain = await extractDomain(url);
   if (!domain) throw new Error("Invalid URL");
 
-  await db.collection('sites').insertOne({
+  await db.collection("sites").insertOne({
     domain,
     url,
     propertyId,
     favicon: `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain as string)}&sz=64`,
     createdAt: new Date(),
   });
-  revalidatePath('/admin');
+  revalidatePath("/admin");
   revalidateTag("sites", "max");
 }
 
 export async function deleteSiteAction(domain: string) {
   await requireAdminSession();
 
-  await db.collection('sites').deleteOne({ domain });
-  revalidatePath('/admin');
+  await db.collection("sites").deleteOne({ domain });
+  revalidatePath("/admin");
   revalidateTag("sites", "max");
 }
 
@@ -158,7 +168,7 @@ export async function getUsersByRoleAndSite(website: string) {
   }
 
   // Filter by accessible sites - they can be on user or in user.data
-  return users.filter(user => {
+  return users.filter((user) => {
     // Check if accessibleSites is directly on the user object
     const accessibleSites = (user as User)?.accessibleSites || [];
     return Array.isArray(accessibleSites) && accessibleSites.includes(website);
@@ -193,7 +203,9 @@ export async function createUserAction(
   });
 
   if (!usernameRes?.available) {
-    throw new Error("Username already exists. Please choose a different username.");
+    throw new Error(
+      "Username already exists. Please choose a different username.",
+    );
   }
 
   const emailResponse = await auth.api.sendVerificationEmail({
@@ -207,7 +219,9 @@ export async function createUserAction(
   });
 
   if (!emailResponse?.status) {
-    throw new Error("Failed to send verification email. Please check the email address and try again.");
+    throw new Error(
+      "Failed to send verification email. Please check the email address and try again.",
+    );
   }
 
   const newUser = await auth.api.createUser({
@@ -237,7 +251,13 @@ export async function createUserAction(
 
 export async function updateUserAction(
   userId: string,
-  data: { name?: string; email?: string; gender?: string; commission?: number; accessibleSites?: string[] },
+  data: {
+    name?: string;
+    email?: string;
+    gender?: string;
+    commission?: number;
+    accessibleSites?: string[];
+  },
 ): Promise<User> {
   await requireAdminSession();
 
@@ -347,10 +367,15 @@ export async function deleteUserAction(userId: string) {
   revalidatePath("/admin/user-management");
 }
 
-export async function getPaymentsForUser(userId: string): Promise<SerializedPayment[]> {
+export async function getPaymentsForUser(
+  userId: string,
+): Promise<SerializedPayment[]> {
   await requireUserDataAccess(userId);
 
-  const payments = await db.collection<DbPayment>('payments').find({ userId }).toArray();
+  const payments = await db
+    .collection<DbPayment>("payments")
+    .find({ userId })
+    .toArray();
 
   return payments.map((payment) => ({
     userId: payment.userId,
@@ -363,20 +388,29 @@ export async function getPaymentsForUser(userId: string): Promise<SerializedPaym
   }));
 }
 
-export async function updatePaymentStatus(userId: string, month: number, year: number, website: string, status: "Paid" | "Pending", paymentDate?: string) {
+export async function updatePaymentStatus(
+  userId: string,
+  month: number,
+  year: number,
+  website: string,
+  status: "Paid" | "Pending",
+  paymentDate?: string,
+) {
   await requireAdminSession();
 
   const updateData: Partial<DbPayment> = { status, updatedAt: new Date() };
-  if (status === 'Paid') {
+  if (status === "Paid") {
     updateData.paymentDate = paymentDate || new Date().toISOString();
   } else {
     updateData.paymentDate = null;
   }
-  await db.collection<DbPayment>('payments').updateOne(
-    { userId, month, year, website },
-    { $set: updateData },
-    { upsert: true }
-  );
+  await db
+    .collection<DbPayment>("payments")
+    .updateOne(
+      { userId, month, year, website },
+      { $set: updateData },
+      { upsert: true },
+    );
   revalidatePath(`/admin/${userId}/payment-management`);
 }
 
@@ -392,17 +426,25 @@ export async function forgotPasswordAction(email: string) {
   });
 
   if (!emailResponse?.status) {
-    throw new Error("Failed to send password reset email. Please check the email address and try again.");
+    throw new Error(
+      "Failed to send password reset email. Please check the email address and try again.",
+    );
   }
 }
 
-export async function resetpasswordAction(token: string, newPassword: string, confirmPassword: string) {
+export async function resetpasswordAction(
+  token: string,
+  newPassword: string,
+  confirmPassword: string,
+) {
   if (!token) {
-    throw new Error("Invalid Token! Please try again.")
+    throw new Error("Invalid Token! Please try again.");
   }
 
   if (newPassword != confirmPassword) {
-    throw new Error("Passwords do not match. Please make sure both password fields are the same.")
+    throw new Error(
+      "Passwords do not match. Please make sure both password fields are the same.",
+    );
   }
   const data = await auth.api.resetPassword({
     body: {
@@ -411,13 +453,19 @@ export async function resetpasswordAction(token: string, newPassword: string, co
     },
   });
   if (!data?.status) {
-    throw new Error("Unable to Reset Password please try again.")
+    throw new Error("Unable to Reset Password please try again.");
   }
 }
 
-export async function updatePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
+export async function updatePassword(
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string,
+) {
   if (newPassword != confirmPassword) {
-    throw new Error("Passwords do not match. Please make sure both password fields are the same.");
+    throw new Error(
+      "Passwords do not match. Please make sure both password fields are the same.",
+    );
   }
 
   const data = await auth.api.changePassword({
@@ -435,4 +483,46 @@ export async function updatePassword(currentPassword: string, newPassword: strin
 
   revalidatePath("/dashboard");
   revalidatePath("/admin");
+}
+
+export async function checkGA4PropertyAccess(
+  propertyIds: string[],
+): Promise<GA4AccessResult[]> {
+  const auth = new google.auth.GoogleAuth({
+    credentials: {
+      client_email: process.env.NEXT_PUBLIC_CLIENT_EMAIL!,
+      private_key: process.env.PRIVATE_KEY!.replace(/\\n/g, "\n"),
+    },
+    scopes: ["https://www.googleapis.com/auth/analytics.readonly"],
+  });
+  const analyticsData = google.analyticsdata({ version: "v1beta", auth });
+
+  const results = await Promise.allSettled(
+    propertyIds.map(async (propertyId) => {
+      await analyticsData.properties.checkCompatibility({
+        property: `properties/${propertyId}`,
+        requestBody: {
+          dimensions: [{ name: "date" }],
+          metrics: [{ name: "activeUsers" }],
+        },
+      });
+      return { propertyId, hasAccess: true } satisfies GA4AccessResult;
+    }),
+  );
+
+  return results.map((result, i) => {
+    if (result.status === "fulfilled") return result.value;
+    const err = result.reason;
+    const code = err?.code ?? err?.response?.status;
+    return {
+      propertyId: propertyIds[i],
+      hasAccess: false,
+      error:
+        code === 403
+          ? "Service account not added to this property"
+          : code === 404
+            ? "Property does not exist"
+            : "Unknown error",
+    };
+  });
 }

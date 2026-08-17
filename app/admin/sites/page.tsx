@@ -1,9 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import {
   addSiteAction,
   deleteSiteAction,
   getSitesAction,
+  checkGA4PropertyAccess,
+  type GA4AccessResult,
 } from "@/lib/server-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,10 +38,26 @@ export default function SitesPage() {
   const [adding, setAdding] = useState(false);
   const [deletingDomain, setDeletingDomain] = useState<string | null>(null);
   const [emailCopied, setEmailCopied] = useState(false);
+  const [results, setResults] = useState<GA4AccessResult[]>([]);
+  const [isPending, startTransition] = useTransition();
+
+  const runCheck = () => {
+    const PROPERTY_IDS = sites.map((site) => site.propertyId);
+    startTransition(async () => {
+      const data = await checkGA4PropertyAccess(PROPERTY_IDS);
+      setResults(data);
+    });
+  };
 
   useEffect(() => {
     getSitesAction().then(setSites);
   }, []);
+
+  useEffect(() => {
+    if (sites.length > 0) {
+      runCheck();
+    }
+  }, [sites]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,7 +137,7 @@ export default function SitesPage() {
             &gt; Add Users &gt; Add the service email below with atleast
             &quot;Viewer&quot; role
             <Badge variant={"outline"} className="ml-2 my-2 py-4">
-              <p className="text-wrap">{Client_Email}{" "}</p>
+              <p className="text-wrap">{Client_Email} </p>
               <Button
                 variant={"outline"}
                 size={"icon-xs"}
@@ -185,18 +203,40 @@ export default function SitesPage() {
                   </p>
                 </div>
               </div>
-              <Button
-                variant="destructive"
-                size="icon-sm"
-                onClick={() => handleDelete(site.domain)}
-                disabled={deletingDomain === site.domain}
-              >
-                {deletingDomain === site.domain ? (
-                  <Loader2Icon className="animate-spin" />
-                ) : (
-                  <Trash2Icon />
+              <div className="flex items-center gap-2">
+                {isPending && (
+                  <Loader2Icon size={14} className="animate-spin" />
                 )}
-              </Button>
+                {!isPending &&
+                results.find((result) => result.propertyId === site.propertyId)
+                  ?.hasAccess ? (
+                  <Badge
+                    variant="outline"
+                    className="border-green-500 text-green-500"
+                  >
+                    Access Granted
+                  </Badge>
+                ) : (
+                  <Badge
+                    variant="outline"
+                    className="border-red-500 text-red-500"
+                  >
+                    Access Denied
+                  </Badge>
+                )}
+                <Button
+                  variant="destructive"
+                  size="icon-sm"
+                  onClick={() => handleDelete(site.domain)}
+                  disabled={deletingDomain === site.domain}
+                >
+                  {deletingDomain === site.domain ? (
+                    <Loader2Icon className="animate-spin" />
+                  ) : (
+                    <Trash2Icon />
+                  )}
+                </Button>
+              </div>
             </div>
           ))}
           {sites.length === 0 && (
@@ -204,6 +244,7 @@ export default function SitesPage() {
               No sites added yet.
             </p>
           )}
+          <div></div>
         </CardContent>
       </Card>
     </div>
