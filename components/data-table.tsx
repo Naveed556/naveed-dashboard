@@ -66,6 +66,10 @@ export function DataTable<TData, TValue>({
       sorting,
       columnFilters,
       columnVisibility,
+      pagination: {
+        pageIndex: 0,
+        pageSize: 100,
+      },
     },
   });
 
@@ -73,14 +77,18 @@ export function DataTable<TData, TValue>({
     <div>
       {/* Toolbar */}
       <div className="flex items-center justify-between p-2">
-        {filterValue && <Input
-          placeholder={`Filter ${filterValue}...`}
-          value={(table.getColumn(filterValue)?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn(filterValue)?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />}
+        {filterValue && (
+          <Input
+            placeholder={`Filter ${filterValue}...`}
+            value={
+              (table.getColumn(filterValue)?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn(filterValue)?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        )}
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -165,6 +173,15 @@ export function DataTable<TData, TValue>({
       </div>
       {/* Pagination */}
       <div className="flex items-center justify-end space-x-2 py-4">
+        {/* rows count and page count through getRowCount and getPageCount */}
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} results
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {table.getPageCount()}
+        </div>
         <Button
           variant="outline"
           size="sm"

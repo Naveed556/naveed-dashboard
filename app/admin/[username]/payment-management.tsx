@@ -65,6 +65,9 @@ export function PaymentManagement({
             }),
             headers: { "Content-Type": "application/json" },
           });
+          if (!res.ok) {
+            throw new Error(`Failed to fetch earnings for site ${site.domain}`);
+          }
           const earnings: Earnings[] = await res.json();
           return { site, earnings };
         });

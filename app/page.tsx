@@ -624,18 +624,7 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="text-xs text-muted-foreground">
-          Made with ❤️ by{" "}
-          <Link
-            className="hover:underline hover:text-foreground"
-            href={"https://nawabwebfolio.vercel.app"}
-            target="_blank"
-          >
-            Moazzam Nawab
-          </Link>
-        </div>
-
-        <nav className="flex items-center gap-6" aria-label="Footer navigation">
+        <nav className="flex items-center" aria-label="Footer navigation">
           {[
             { label: "Privacy", href: "/privacy-policy" },
             { label: "Login", href: "/auth/login" },
@@ -643,11 +632,21 @@ export default function Home() {
             <Link
               key={item.label}
               href={item.href}
-              className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              className="text-xs text-muted-foreground hover:text-primary transition-colors border-r pr-4 ml-4"
             >
               {item.label}
             </Link>
           ))}
+          <div className="text-xs text-muted-foreground ml-4">
+            Developed by{" "}
+            <Link
+              className="hover:underline text-primary"
+              href={"https://nawab-tech.vercel.app/about#founder"}
+              target="_blank"
+            >
+              Moazzam Nawab
+            </Link>
+          </div>
         </nav>
       </footer>
     </main>

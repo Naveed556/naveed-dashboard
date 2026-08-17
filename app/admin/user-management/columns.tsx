@@ -23,6 +23,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import {
   banUserAction,
@@ -147,6 +152,49 @@ export const columns: ColumnDef<User>[] = [
     cell: ({ row }) => {
       const user = row.original;
       return `${user.commission}%`;
+    },
+  },
+  {
+    accessorKey: "accessibleSites",
+    header: "Sites",
+    cell: ({ row }) => {
+      const user = row.original;
+      const sites = Array.isArray(user.accessibleSites)
+        ? user.accessibleSites
+        : [];
+      const visible = sites.slice(0, 2);
+      const remaining = sites.length - visible.length;
+
+      return (
+        <div className="flex flex-col gap-1">
+          {visible.map((s) => (
+            <Badge variant={"outline"} key={s} className="text-xs">
+              {s}
+            </Badge>
+          ))}
+          {remaining > 0 && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="secondary" className="text-xs">
+                  +{remaining}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>
+                <div className="flex flex-col gap-1">
+                  {sites.map((s) => (
+                    <span key={s} className="text-xs">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          )}
+          {sites.length === 0 && (
+            <span className="text-xs text-muted-foreground">No sites</span>
+          )}
+        </div>
+      );
     },
   },
   {

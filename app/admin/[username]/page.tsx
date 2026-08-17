@@ -117,21 +117,29 @@ export default function UserStats({
     loadSites();
   }, []);
 
-  useEffect(() => {
-    if (!isEditing || !user) return;
+  const syncEditFormFromUser = (currentUser: User | null) => {
+    if (!currentUser) return;
 
-    const accessibleSitesFromUser = user.accessibleSites ?? [];
+    const accessibleSitesFromUser = currentUser.accessibleSites ?? [];
 
     setEditForm({
-      name: user.name ?? "",
-      email: user.email ?? "",
-      gender: normalizeGenderSelect(user.gender),
-      commission:user.commission || 0,
+      name: currentUser.name ?? "",
+      email: currentUser.email ?? "",
+      gender: normalizeGenderSelect(currentUser.gender),
+      commission: currentUser.commission || 0,
       accessibleSites: Array.isArray(accessibleSitesFromUser)
         ? accessibleSitesFromUser
         : [],
     });
-  }, [isEditing, user]);
+  };
+
+  const handleEditDialogOpenChange = (nextOpen: boolean) => {
+    setIsEditing(nextOpen);
+
+    if (nextOpen) {
+      syncEditFormFromUser(user);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
