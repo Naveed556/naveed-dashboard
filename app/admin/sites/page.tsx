@@ -33,6 +33,7 @@ import { authClient } from "@/lib/auth-client";
 
 export default function SitesPage() {
   const [sites, setSites] = useState<Sites[]>([]);
+  const [loadingSites, setLoadingSites] = useState(false);
   const [url, setUrl] = useState("");
   const [propertyId, setPropertyId] = useState("");
   const [adding, setAdding] = useState(false);
@@ -67,7 +68,9 @@ export default function SitesPage() {
       toast.success("Site added successfully");
       setUrl("");
       setPropertyId("");
+      setLoadingSites(true);
       setSites(await getSitesAction());
+      setLoadingSites(false);
     } catch (err) {
       toast.error(
         `Failed: ${err instanceof Error ? err.message : "Unknown error"}`,
@@ -106,7 +109,9 @@ export default function SitesPage() {
         toast.success(`Updated user ${user.email} access`);
       }
     }
+    setLoadingSites(true);
     setSites(await getSitesAction());
+    setLoadingSites(false);
     setDeletingDomain(null);
     toast.success("Site removed");
   };
@@ -189,7 +194,7 @@ export default function SitesPage() {
           {sites.map((site) => (
             <div
               key={site.domain}
-              className="flex items-center justify-between p-3 border rounded-none"
+              className="flex items-center justify-between p-3 border rounded-none flex-wrap gap-3"
             >
               <div className="flex items-center gap-3">
                 <Avatar className="h-8 w-8">
@@ -214,14 +219,14 @@ export default function SitesPage() {
                     variant="outline"
                     className="border-green-500 text-green-500"
                   >
-                    Access Granted
+                    Access
                   </Badge>
                 ) : (
                   <Badge
                     variant="outline"
                     className="border-red-500 text-red-500"
                   >
-                    Access Denied
+                    Denied
                   </Badge>
                 )}
                 <Button
@@ -239,12 +244,12 @@ export default function SitesPage() {
               </div>
             </div>
           ))}
-          {sites.length === 0 && (
+          {!loadingSites && sites.length === 0 && (
             <p className="text-center text-muted-foreground py-6">
               No sites added yet.
             </p>
           )}
-          <div></div>
+          {loadingSites && <Loader2Icon className="animate-spin w-full" />}
         </CardContent>
       </Card>
     </div>
